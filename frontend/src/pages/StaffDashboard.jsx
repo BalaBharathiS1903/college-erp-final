@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import appLogo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
+import { loadAllUsers } from "../utils/userStore";
 
 // ─── Mock Data ───────────────────────────────────────────────
 const SUBJECTS = [
@@ -71,7 +72,7 @@ const NAV = [
   { id: "dashboard",  icon: "⬡", label: "Dashboard"       },
   { id: "attendance", icon: "✓", label: "Attendance"       },
   { id: "cia",        icon: "✎", label: "CIA Marks"        },
-  { id: "semester",   icon: "⊞", label: "Semester Marks"   },
+  { id: "semester",   icon: "⊞", label: "COE Mark Entry"   },
   { id: "students",   icon: "◎", label: "My Students"      },
 ];
 
@@ -80,6 +81,7 @@ const SUBJ_COLORS = ["#f59e0b","#10b981","#4a90e2","#c084fc"];
 export default function StaffDashboard() {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const isCoe = loadAllUsers().find(u => u.username === user?.username)?.isCoe === true;
   const handleLogout = () => { logout(); navigate("/login"); };
   const [tab, setTab]               = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -328,7 +330,7 @@ export default function StaffDashboard() {
             {sidebarOpen && <div><div className="sb-title">BHC ERP</div><div className="sb-sub">Staff Portal</div></div>}
           </div>
           {sidebarOpen && <div className="sb-sec">Navigation</div>}
-          {NAV.map(n => (
+          {NAV.filter(n => n.id !== "semester" || isCoe).map(n => (
             <button key={n.id} className={`sb-item ${tab === n.id ? "on" : ""}`} onClick={() => setTab(n.id)}>
               <span className="sb-icon">{n.icon}</span>
               {sidebarOpen && <span>{n.label}</span>}
@@ -614,13 +616,13 @@ export default function StaffDashboard() {
               </div>
             </>)}
 
-            {/* ══ SEMESTER MARKS ═══════════════════════════════ */}
-            {tab === "semester" && (<>
+            {/* ══ COE SEMESTER MARKS ═══════════════════════════ */}
+            {tab === "semester" && isCoe && (<>
               <div className="sec-hd">
-                <div><div className="sec-title">Semester Exam Marks</div><div className="sec-sub">Max 100 · Pass ≥ 50 · Grade: O/A+/A/B+/B/F</div></div>
+                <div><div className="sec-title">COE Mark Entry</div><div className="sec-sub">Max 100 · Pass ≥ 50 · Grade: O/A+/A/B+/B/F</div></div>
                 <button className="btn-green" onClick={() => showToast("✅ Semester marks saved!")}>💾 Save Marks</button>
               </div>
-              <div className="info-box">⚠️ Semester marks entry is enabled by Admin. Contact admin for corrections after saving.</div>
+              <div className="info-box">⚠️ You are acting as COE. These grades are final and directly update student report cards.</div>
               <div className="sub-tabs">
                 {SUBJECTS.map(s => (
                   <button key={s.id} className={`sub-tab ${semSubject === s.id ? "on" : ""}`} onClick={() => setSemSubject(s.id)}>

@@ -178,7 +178,7 @@ export default function AdminDashboard() {
   };
 
   const [editTimetableCell, setEditTimetableCell] = useState(null);
-  const [newUser, setNewUser] = useState({ name: "", username: "", email: "", role: "STUDENT", dept: "CSE", password: "" });
+  const [newUser, setNewUser] = useState({ name: "", username: "", email: "", role: "STUDENT", dept: "CSE", password: "", isCoe: false });
   const [newFee, setNewFee] = useState({ student: "", regNo: "", dept: "CSE", feeType: "Tuition", allocated: "", year: "2024-25" });
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -206,7 +206,7 @@ export default function AdminDashboard() {
     const updatedUsers = [...users, { id: Date.now(), ...newUser, status: true }];
     setUsers(updatedUsers);
     saveAllUsers(updatedUsers);
-    setNewUser({ name: "", username: "", email: "", role: "STUDENT", dept: "CSE", password: "" });
+    setNewUser({ name: "", username: "", email: "", role: "STUDENT", dept: "CSE", password: "", isCoe: false });
     setShowAddUser(false);
   };
 
@@ -650,7 +650,10 @@ export default function AdminDashboard() {
                         {users.slice(0, 4).map(u => (
                           <tr key={u.id}>
                             <td>
-                              <div className="td-name">{u.name}</div>
+                              <div className="td-name">
+                                {u.name}
+                                {u.isCoe && <span style={{ marginLeft: 8, background: "rgba(168, 85, 247, 0.15)", color: "#a855f7", fontSize: 10, padding: "2px 6px", borderRadius: 4, fontWeight: "bold" }}>COE</span>}
+                              </div>
                               <div className="td-meta">{u.dept} · {u.username}</div>
                             </td>
                             <td><Badge role={u.role} /></td>
@@ -737,7 +740,10 @@ export default function AdminDashboard() {
                       {filteredUsers.map(u => (
                         <tr key={u.id}>
                           <td>
-                            <div className="td-name">{u.name}</div>
+                            <div className="td-name">
+                              {u.name}
+                              {u.isCoe && <span style={{ marginLeft: 8, background: "rgba(168, 85, 247, 0.15)", color: "#a855f7", fontSize: 10, padding: "2px 6px", borderRadius: 4, fontWeight: "bold" }}>COE</span>}
+                            </div>
                             <div className="td-meta">{u.username} · {u.email}</div>
                           </td>
                           <td><Badge role={u.role} /></td>
@@ -979,6 +985,12 @@ export default function AdminDashboard() {
               <FormInput label="Role" type="select" value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })} options={["STUDENT", "STAFF", "ADMIN"]} />
               <FormInput label="Department" type="select" value={newUser.dept} onChange={e => setNewUser({ ...newUser, dept: e.target.value })} options={["CSE", "ECE", "MECH", "CIVIL"]} />
             </div>
+            {newUser.role === "STAFF" && (
+              <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#fff", marginBottom: 16 }}>
+                <input type="checkbox" checked={newUser.isCoe} onChange={e => setNewUser({ ...newUser, isCoe: e.target.checked })} />
+                Assign COE (Controller of Examinations) privileges
+              </label>
+            )}
             <FormInput label="Password" type="password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} placeholder="Set initial password" />
             <div className="modal-actions">
               <button className="btn-cancel" onClick={() => setShowAddUser(false)}>Cancel</button>
