@@ -27,6 +27,7 @@ function buildAdminFees() {
   for (const [regNo, studentFees] of Object.entries(allFees)) {
     const info = studentNames[regNo] || { name: regNo, dept: "" };
     for (const f of studentFees) {
+      if (f.year !== "2024-25") continue; // Show only current year fees
       rows.push({
         id: id++,
         student: info.name,
