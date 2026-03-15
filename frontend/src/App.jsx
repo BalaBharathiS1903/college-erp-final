@@ -9,6 +9,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import StaffDashboard from "./pages/StaffDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import Unauthorized   from "./pages/Unauthorized";
+import { Analytics } from "@vercel/analytics/react";
 
 // ── Root redirect: send logged-in users to their dashboard ─────
 function RootRedirect() {
@@ -41,6 +42,7 @@ function LoginWrapper() {
 export default function App() {
   return (
     <AuthProvider>
+      <Analytics />
       <BrowserRouter>
         <Routes>
           {/* Public */}
