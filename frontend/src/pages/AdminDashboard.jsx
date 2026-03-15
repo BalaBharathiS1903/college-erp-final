@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import appLogo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { loadAllFees } from "../utils/feeStore";
 
@@ -498,7 +499,7 @@ export default function AdminDashboard() {
         {/* ── Sidebar ─────────────────────────── */}
         <aside className={`sidebar ${sidebarOpen ? "" : "collapsed"}`}>
           <div className="sidebar-brand">
-            <div className="brand-icon">🏛️</div>
+            <img src={appLogo} alt="Logo" className="brand-icon" style={{ background:"#fff", objectFit:"contain", padding:"2px", borderRadius:"8px", width:"36px", height:"36px" }} />
             {sidebarOpen && <div className="brand-text">BHC ERP</div>}
           </div>
 

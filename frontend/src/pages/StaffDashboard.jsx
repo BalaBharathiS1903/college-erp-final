@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import appLogo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 
 // ─── Mock Data ───────────────────────────────────────────────
@@ -323,7 +324,7 @@ export default function StaffDashboard() {
         {/* ══ SIDEBAR ══════════════════════════════════════════ */}
         <aside className={`sb ${sidebarOpen ? "" : "cl"}`}>
           <div className="sb-brand">
-            <div className="sb-logo">🧑‍🏫</div>
+            <img src={appLogo} alt="Logo" className="sb-logo" style={{ background:"#fff", objectFit:"contain", padding:"2px" }} />
             {sidebarOpen && <div><div className="sb-title">BHC ERP</div><div className="sb-sub">Staff Portal</div></div>}
           </div>
           {sidebarOpen && <div className="sb-sec">Navigation</div>}

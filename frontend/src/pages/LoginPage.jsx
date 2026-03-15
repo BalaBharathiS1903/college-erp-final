@@ -1,5 +1,6 @@
 import { useState } from "react";
 import collegeBg from "../assets/college.png";
+import appLogo from "../assets/logo.png";
 
 const roles = [
   { id:"ADMIN",   label:"Admin",   icon:"⚙️",  color:"#e84545", desc:"System Administrator" },
@@ -38,7 +39,7 @@ export default function LoginPage({ onLogin }) {
         .g2{bottom:-100px;right:-100px;background:#e84545;opacity:.1}
         .left{flex:1;display:flex;flex-direction:column;justify-content:center;padding:60px;position:relative;z-index:1}
         .left-content{position:relative;z-index:1;max-width:540px}
-        .blogo{width:52px;height:52px;background:linear-gradient(135deg,var(--rc,#4a90e2),#a855f7);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:18px;transition:background .5s;box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+        .blogo{width:52px;height:52px;background:#fff;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;transition:background .5s;box-shadow:0 8px 24px rgba(0,0,0,0.4);object-fit:contain;padding:4px}
         .bname{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.5)}
         .btag{font-size:12px;color:rgba(255,255,255,.6);margin-top:4px;letter-spacing:2px;text-transform:uppercase;text-shadow:0 1px 4px rgba(0,0,0,0.5)}
         .hero{font-family:'Syne',sans-serif;font-size:50px;font-weight:800;color:#fff;line-height:1.1;letter-spacing:-2px;margin:56px 0 18px;text-shadow:0 4px 16px rgba(0,0,0,0.6)}
@@ -84,7 +85,7 @@ export default function LoginPage({ onLogin }) {
         <div className="glow g1"/><div className="glow g2"/>
         <div className="left">
           <div className="left-content">
-            <div><div className="blogo">🏛️</div><div className="bname">BHC ERP</div><div className="btag">College Management System</div></div>
+            <div><img src={appLogo} alt="Logo" className="blogo"/><div className="bname">BHC ERP</div><div className="btag">College Management System</div></div>
             <div className="hero">Smart Campus.<br/><span className="hac">Unified Control.</span></div>
             <p className="hdesc">One platform to manage admissions, academics, fees, attendance, and results — for administrators, faculty, and students.</p>
             <div className="stats">

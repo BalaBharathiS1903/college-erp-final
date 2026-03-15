@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import appLogo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { loadStudentFees, saveStudentFees } from "../utils/feeStore";
 
@@ -222,7 +223,7 @@ export default function StudentDashboard(){
       {/* SIDEBAR */}
       <aside className={`sb ${sidebar?"":"cl"}`}>
         <div className="sb-brand">
-          <div className="sb-logo">🎓</div>
+          <img src={appLogo} alt="Logo" className="sb-logo" style={{ background:"#fff", objectFit:"contain", padding:"2px" }} />
           {sidebar&&<div><div className="sb-title">BHC ERP</div><div className="sb-role">Student Portal</div></div>}
         </div>
         {sidebar&&<div className="sb-sec">Menu</div>}
