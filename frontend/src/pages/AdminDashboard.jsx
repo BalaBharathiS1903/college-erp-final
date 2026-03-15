@@ -179,6 +179,8 @@ export default function AdminDashboard() {
 
   const [editTimetableCell, setEditTimetableCell] = useState(null);
   const [newUser, setNewUser] = useState({ name: "", username: "", email: "", role: "STUDENT", dept: "CSE", password: "", isCoe: false });
+  const [showEditUser, setShowEditUser] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
   const [newFee, setNewFee] = useState({ student: "", regNo: "", dept: "CSE", feeType: "Tuition", allocated: "", year: "2024-25" });
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -208,6 +210,19 @@ export default function AdminDashboard() {
     saveAllUsers(updatedUsers);
     setNewUser({ name: "", username: "", email: "", role: "STUDENT", dept: "CSE", password: "", isCoe: false });
     setShowAddUser(false);
+  };
+
+  const handleEditUser = (user) => {
+    setEditingUser({ ...user });
+    setShowEditUser(true);
+  };
+
+  const handleUpdateUser = () => {
+    const updatedUsers = users.map(u => u.id === editingUser.id ? editingUser : u);
+    setUsers(updatedUsers);
+    saveAllUsers(updatedUsers);
+    setShowEditUser(false);
+    setEditingUser(null);
   };
 
   const handleAddFee = () => {
@@ -756,6 +771,7 @@ export default function AdminDashboard() {
                           <td><StatusDot active={u.status} /></td>
                           <td>
                             <div style={{ display: "flex", gap: 6 }}>
+                              <button className="btn-ghost" onClick={() => handleEditUser(u)}>Edit</button>
                               <button className="btn-ghost" onClick={() => toggleUserStatus(u.id)}>
                                 {u.status ? "Disable" : "Enable"}
                               </button>
@@ -995,6 +1011,32 @@ export default function AdminDashboard() {
             <div className="modal-actions">
               <button className="btn-cancel" onClick={() => setShowAddUser(false)}>Cancel</button>
               <button className="btn-submit" onClick={handleAddUser}>Add User</button>
+            </div>
+          </Modal>
+        )}
+
+        {/* ── EDIT USER MODAL ────────────────────── */}
+        {showEditUser && editingUser && (
+          <Modal title="Edit User" onClose={() => setShowEditUser(false)}>
+            <div className="form-row">
+              <FormInput label="Full Name" value={editingUser.name} onChange={e => setEditingUser({ ...editingUser, name: e.target.value })} placeholder="e.g. Arjun Selvan" />
+              <FormInput label="Username / Reg No." value={editingUser.username} onChange={e => setEditingUser({ ...editingUser, username: e.target.value })} placeholder="e.g. 21CSE001" />
+            </div>
+            <FormInput label="Email" type="email" value={editingUser.email} onChange={e => setEditingUser({ ...editingUser, email: e.target.value })} placeholder="user@college.edu" />
+            <div className="form-row">
+              <FormInput label="Role" type="select" value={editingUser.role} onChange={e => setEditingUser({ ...editingUser, role: e.target.value })} options={["STUDENT", "STAFF", "ADMIN"]} />
+              <FormInput label="Department" type="select" value={editingUser.dept} onChange={e => setEditingUser({ ...editingUser, dept: e.target.value })} options={["CSE", "ECE", "MECH", "CIVIL"]} />
+            </div>
+            {editingUser.role === "STAFF" && (
+              <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#fff", marginBottom: 16 }}>
+                <input type="checkbox" checked={editingUser.isCoe} onChange={e => setEditingUser({ ...editingUser, isCoe: e.target.checked })} />
+                Assign COE (Controller of Examinations) privileges
+              </label>
+            )}
+            <FormInput label="Password (leave blank to keep current)" type="password" value={editingUser.password} onChange={e => setEditingUser({ ...editingUser, password: e.target.value })} placeholder="Enter new password" />
+            <div className="modal-actions">
+              <button className="btn-cancel" onClick={() => setShowEditUser(false)}>Cancel</button>
+              <button className="btn-submit" onClick={handleUpdateUser}>Update User</button>
             </div>
           </Modal>
         )}
