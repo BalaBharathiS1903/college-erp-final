@@ -72,12 +72,7 @@ const subjectColors = {
   "":                "transparent",
 };
 
-const stats = [
-  { label: "Total Students", value: "1,248", icon: "🎓", change: "+12 this month", color: "#4a90e2" },
-  { label: "Total Staff",    value: "86",    icon: "👨‍🏫", change: "+2 this month",  color: "#f5a623" },
-  { label: "Fees Collected", value: "₹42L",  icon: "💰", change: "78% collected",   color: "#7ed321" },
-  { label: "Fees Pending",   value: "₹11L",  icon: "⚠️", change: "22% pending",    color: "#e84545" },
-];
+// We calculate stats dynamically inside the component instead of here
 
 // ─── Reusable Components ─────────────────────────────────────
 function Badge({ role }) {
@@ -579,10 +574,26 @@ export default function AdminDashboard() {
           <div className="content-area">
 
             {/* ── DASHBOARD ──────────────────────── */}
-            {activeTab === "dashboard" && (
+            {activeTab === "dashboard" && (() => {
+              const studentCount = users.filter(u => u.role === "STUDENT").length;
+              const staffCount = users.filter(u => u.role === "STAFF").length;
+              const feesCollected = fees.reduce((sum, s) => sum + s.paid, 0);
+              const feesPending = fees.reduce((sum, s) => sum + s.balance, 0);
+              const feesTotal = feesCollected + feesPending;
+              const collectedPct = feesTotal > 0 ? Math.round((feesCollected / feesTotal) * 100) : 0;
+              const pendingPct = feesTotal > 0 ? Math.round((feesPending / feesTotal) * 100) : 0;
+
+              const dynamicStats = [
+                { label: "Total Students", value: studentCount.toString(), icon: "🎓", change: "Updated live", color: "#4a90e2" },
+                { label: "Total Staff",    value: staffCount.toString(),    icon: "👨‍🏫", change: "Updated live",  color: "#f5a623" },
+                { label: "Fees Collected", value: `₹${(feesCollected/100000).toFixed(1)}L`,  icon: "💰", change: `${collectedPct}% collected`,   color: "#7ed321" },
+                { label: "Fees Pending",   value: `₹${(feesPending/100000).toFixed(1)}L`,  icon: "⚠️", change: `${pendingPct}% pending`,    color: "#e84545" },
+              ];
+
+              return (
               <>
                 <div className="stats-grid">
-                  {stats.map(s => (
+                  {dynamicStats.map(s => (
                     <div className="stat-card" key={s.label}>
                       <div className="stat-top">
                         <div>
@@ -651,7 +662,8 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </>
-            )}
+              );
+            })()}
 
             {/* ── USER MANAGEMENT ─────────────────── */}
             {activeTab === "users" && (

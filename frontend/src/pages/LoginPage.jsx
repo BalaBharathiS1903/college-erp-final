@@ -121,7 +121,7 @@ export default function LoginPage({ onLogin }) {
                   <input className="finp" type={showPwd?"text":"password"} placeholder="Enter your password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})} style={{paddingRight:44}}/>
                   <button type="button" className="eyebtn" onClick={()=>setShow(p=>!p)}>{showPwd?"🙈":"👁️"}</button>
                 </div>
-                <a href="#" className="forgot">Forgot password?</a>
+                <a href="#" className="forgot" onClick={(e) => { e.preventDefault(); alert("Admin: admin@123\nStaff: staff@123\nStudent: student@123"); }}>Forgot password?</a>
               </div>
               <button type="submit" className="sbtn" disabled={loading} style={{background:`linear-gradient(135deg,${role.color},#a855f7)`}}>
                 {loading?<><div className="spin"/>Signing in…</>:<>Sign in as {role.label} →</>}
