@@ -86,7 +86,7 @@ export default function Unauthorized() {
               </button>
             )}
             <button className="btn-ghost" onClick={() => { logout(); navigate("/login"); }}>
-              Sign Out
+              Sign In with different account
             </button>
           </div>
         </div>

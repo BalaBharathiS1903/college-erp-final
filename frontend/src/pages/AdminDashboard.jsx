@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import appLogo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
-import { loadAllFees } from "../utils/feeStore";
+import { loadAllFees, loadStudentFees, saveStudentFees } from "../utils/feeStore";
 
 // ─── Mock Data ────────────────────────────────────────────────
 const mockUsers = [
@@ -194,7 +194,18 @@ export default function AdminDashboard() {
   };
 
   const handleAddFee = () => {
-    setFees(prev => [...prev, { id: Date.now(), ...newFee, allocated: Number(newFee.allocated), paid: 0 }]);
+    const stFees = loadStudentFees(newFee.regNo);
+    const newFeeRecord = { 
+      id: Date.now(), 
+      type: newFee.feeType + (newFee.feeType.endsWith("Fee") ? "" : " Fee"),
+      allocated: Number(newFee.allocated), 
+      paid: 0, 
+      year: newFee.year, 
+      receipts: [] 
+    };
+    stFees.push(newFeeRecord);
+    saveStudentFees(newFee.regNo, stFees);
+    refreshFees();
     setNewFee({ student: "", regNo: "", dept: "CSE", feeType: "Tuition", allocated: "", year: "2024-25" });
     setShowAddFee(false);
   };
