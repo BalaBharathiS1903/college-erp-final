@@ -80,11 +80,6 @@ export default function Unauthorized() {
             This area is restricted to a different role.
           </p>
           <div className="btn-row">
-            {user && (
-              <button className="btn-primary" onClick={() => navigate(roleHome[user.role] || "/login")}>
-                Go to My Dashboard
-              </button>
-            )}
             <button className="btn-ghost" onClick={() => { logout(); navigate("/login"); }}>
               Sign In with different account
             </button>
