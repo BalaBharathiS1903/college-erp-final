@@ -155,6 +155,28 @@ export default function AdminDashboard() {
   const [roleFilter, setRoleFilter] = useState("ALL");
   const [showAddUser, setShowAddUser] = useState(false);
   const [showAddFee, setShowAddFee] = useState(false);
+  const [showAssignStaff, setShowAssignStaff] = useState(false);
+  const [assignSubj, setAssignSubj] = useState("");
+  const [assignStaffName, setAssignStaffName] = useState("");
+  
+  const initialAllocations = subjects.reduce((acc, subj, i) => {
+    const staffList = ["Dr. Ramesh Kumar", "Prof. Meena Devi", "Dr. Anand Raj", "Prof. Kavitha S", "Dr. Suresh M", "Prof. Geetha R"];
+    acc[subj] = staffList[i] || "Unassigned";
+    return acc;
+  }, {});
+  const [staffAllocations, setStaffAllocations] = useState(() => {
+    try {
+      const stored = localStorage.getItem("erp_staff_alloc");
+      if (stored) return JSON.parse(stored);
+    } catch(e) {}
+    return initialAllocations;
+  });
+
+  const saveAllocations = (newAlloc) => {
+    setStaffAllocations(newAlloc);
+    localStorage.setItem("erp_staff_alloc", JSON.stringify(newAlloc));
+  };
+
   const [editTimetableCell, setEditTimetableCell] = useState(null);
   const [newUser, setNewUser] = useState({ name: "", username: "", email: "", role: "STUDENT", dept: "CSE", password: "" });
   const [newFee, setNewFee] = useState({ student: "", regNo: "", dept: "CSE", feeType: "Tuition", allocated: "", year: "2024-25" });
@@ -918,24 +940,23 @@ export default function AdminDashboard() {
                     <div className="section-title">Staff–Subject Allocation</div>
                     <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", marginTop: 3 }}>CSE Department · Semester 6</div>
                   </div>
-                  <button className="btn-primary">＋ Assign Staff</button>
+                  <button className="btn-primary" onClick={() => { setAssignSubj(subjects[0]); setAssignStaffName(users.find(u => u.role === "STAFF")?.name || ""); setShowAssignStaff(true); }}>＋ Assign Staff</button>
                 </div>
 
                 <div className="alloc-grid">
                   {subjects.map((subj, i) => {
-                    const staffList = ["Dr. Ramesh Kumar", "Prof. Meena Devi", "Dr. Anand Raj", "Prof. Kavitha S", "Dr. Suresh M", "Prof. Geetha R"];
+                    const assignedName = staffAllocations[subj] || "Unassigned";
                     const color = Object.values(subjectColors)[i] || "#4a90e2";
                     return (
                       <div className="alloc-card" key={subj} style={{ borderLeft: `3px solid ${color}` }}>
                         <div className="alloc-subject" style={{ color }}>{subj}</div>
                         <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginBottom: 8 }}>3 Credits · Theory</div>
-                        <div className="alloc-staff-tag">
+                        <div className="alloc-staff-tag" style={{ border: assignedName === "Unassigned" ? "1px dashed rgba(232,69,69,0.4)" : undefined, color: assignedName === "Unassigned" ? "#e84545" : undefined }}>
                           <span>👨‍🏫</span>
-                          <span>{staffList[i]}</span>
+                          <span>{assignedName}</span>
                         </div>
                         <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-                          <button className="btn-ghost">Change Staff</button>
-                          <button className="btn-ghost">View Details</button>
+                          <button className="btn-ghost" onClick={() => { setAssignSubj(subj); setAssignStaffName(assignedName === "Unassigned" ? "" : assignedName); setShowAssignStaff(true); }}>Change Staff</button>
                         </div>
                       </div>
                     );
@@ -984,6 +1005,28 @@ export default function AdminDashboard() {
             <div className="modal-actions">
               <button className="btn-cancel" onClick={() => setShowAddFee(false)}>Cancel</button>
               <button className="btn-submit" onClick={handleAddFee}>Allocate</button>
+            </div>
+          </Modal>
+        )}
+        {/* ── ASSIGN STAFF MODAL ───────────────────── */}
+        {showAssignStaff && (
+          <Modal title="Assign Staff" onClose={() => setShowAssignStaff(false)}>
+            <div className="form-row">
+              <FormInput label="Subject" type="select" value={assignSubj} onChange={e => setAssignSubj(e.target.value)} options={subjects} />
+            </div>
+            <div className="form-row">
+              <FormInput label="Select Staff" type="select" value={assignStaffName} onChange={e => setAssignStaffName(e.target.value)} options={["", ...users.filter(u => u.role === "STAFF").map(u => u.name), "Dr. Ramesh Kumar", "Prof. Meena Devi"]} />
+            </div>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginBottom: 16 }}>
+              Note: You can add more staff in the User Management tab.
+            </div>
+            <div className="modal-actions">
+              <button className="btn-cancel" onClick={() => setShowAssignStaff(false)}>Cancel</button>
+              <button className="btn-submit" onClick={() => {
+                const newAlloc = { ...staffAllocations, [assignSubj]: assignStaffName || "Unassigned" };
+                saveAllocations(newAlloc);
+                setShowAssignStaff(false);
+              }}>Save Assignment</button>
             </div>
           </Modal>
         )}
