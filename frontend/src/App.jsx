@@ -10,6 +10,7 @@ import StaffDashboard from "./pages/StaffDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import Unauthorized   from "./pages/Unauthorized";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 // ── Root redirect: send logged-in users to their dashboard ─────
 function RootRedirect() {
@@ -43,6 +44,7 @@ export default function App() {
   return (
     <AuthProvider>
       <Analytics />
+      <SpeedInsights />
       <BrowserRouter>
         <Routes>
           {/* Public */}
