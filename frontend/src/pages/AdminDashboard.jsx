@@ -4,14 +4,7 @@ import appLogo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { loadAllFees, loadStudentFees, saveStudentFees } from "../utils/feeStore";
 
-// ─── Mock Data ────────────────────────────────────────────────
-const mockUsers = [
-  { id: 1, name: "Dr. Ramesh Kumar",    username: "ramesh.k", email: "ramesh@college.edu",  role: "STAFF",   dept: "CSE",   status: true,  staffCode: "STF001" },
-  { id: 2, name: "Prof. Meena Devi",    username: "meena.d",  email: "meena@college.edu",   role: "STAFF",   dept: "ECE",   status: true,  staffCode: "STF002" },
-  { id: 3, name: "Arjun Selvan",        username: "21CSE001", email: "arjun@student.edu",   role: "STUDENT", dept: "CSE",   status: true,  regNo: "21CSE001", sem: 6 },
-  { id: 4, name: "Priya Lakshmi",       username: "21CSE002", email: "priya@student.edu",   role: "STUDENT", dept: "CSE",   status: true,  regNo: "21CSE002", sem: 6 },
-  { id: 5, name: "Karthik Murugan",     username: "22ECE001", email: "karthik@student.edu", role: "STUDENT", dept: "ECE",   status: false, regNo: "22ECE001", sem: 4 },
-];
+import { loadAllUsers, saveAllUsers } from "../utils/userStore";
 
 // Student names for fee display
 const studentNames = {
@@ -152,7 +145,7 @@ export default function AdminDashboard() {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [users, setUsers] = useState(mockUsers);
+  const [users, setUsers] = useState(loadAllUsers);
   const [fees, setFees] = useState(buildAdminFees);
   const [expandedStudents, setExpandedStudents] = useState({});
 
@@ -188,7 +181,9 @@ export default function AdminDashboard() {
   });
 
   const handleAddUser = () => {
-    setUsers(prev => [...prev, { id: Date.now(), ...newUser, status: true }]);
+    const updatedUsers = [...users, { id: Date.now(), ...newUser, status: true }];
+    setUsers(updatedUsers);
+    saveAllUsers(updatedUsers);
     setNewUser({ name: "", username: "", email: "", role: "STUDENT", dept: "CSE", password: "" });
     setShowAddUser(false);
   };
@@ -216,11 +211,15 @@ export default function AdminDashboard() {
   };
 
   const toggleUserStatus = (id) => {
-    setUsers(prev => prev.map(u => u.id === id ? { ...u, status: !u.status } : u));
+    const updatedUsers = users.map(u => u.id === id ? { ...u, status: !u.status } : u);
+    setUsers(updatedUsers);
+    saveAllUsers(updatedUsers);
   };
 
   const deleteUser = (id) => {
-    setUsers(prev => prev.filter(u => u.id !== id));
+    const updatedUsers = users.filter(u => u.id !== id);
+    setUsers(updatedUsers);
+    saveAllUsers(updatedUsers);
   };
 
   return (
