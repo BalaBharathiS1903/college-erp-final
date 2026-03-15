@@ -1,0 +1,22 @@
+/* Global resets for College ERP */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  min-height: 100vh;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Prevent iOS tap highlight */
+* { -webkit-tap-highlight-color: transparent; }
+
+/* Smooth scrolling */
+html { scroll-behavior: smooth; }
