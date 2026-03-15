@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import appLogo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
@@ -19,28 +19,35 @@ const studentNames = {
   "21CSE002": { name: "Priya Lakshmi", dept: "CSE" },
 };
 
-// Build flat fee rows from shared store
+// Build grouped fee rows by student from shared store
 function buildAdminFees() {
   const allFees = loadAllFees();
-  const rows = [];
+  const students = [];
   let id = 1;
   for (const [regNo, studentFees] of Object.entries(allFees)) {
     const info = studentNames[regNo] || { name: regNo, dept: "" };
-    for (const f of studentFees) {
-      if (f.year !== "2024-25") continue; // Show only current year fees
-      rows.push({
-        id: id++,
-        student: info.name,
-        regNo,
-        dept: info.dept,
-        feeType: f.type.replace(" Fee", ""),
-        allocated: f.allocated,
-        paid: f.paid,
-        year: f.year,
-      });
-    }
+    
+    // Filter to current year
+    const currentFees = studentFees.filter(f => f.year === "2024-25");
+    if (currentFees.length === 0) continue;
+
+    // Calculate totals for the student
+    const stAllocated = currentFees.reduce((sum, f) => sum + f.allocated, 0);
+    const stPaid = currentFees.reduce((sum, f) => sum + f.paid, 0);
+
+    students.push({
+      id: id++,
+      student: info.name,
+      regNo,
+      dept: info.dept,
+      allocated: stAllocated,
+      paid: stPaid,
+      balance: stAllocated - stPaid,
+      pct: stAllocated > 0 ? Math.round((stPaid / stAllocated) * 100) : 0,
+      details: currentFees // The nested fees
+    });
   }
-  return rows;
+  return students;
 }
 
 const subjects = ["Data Structures", "DBMS", "OS", "CN", "SE", "Maths III"];
@@ -152,6 +159,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [users, setUsers] = useState(mockUsers);
   const [fees, setFees] = useState(buildAdminFees);
+  const [expandedStudents, setExpandedStudents] = useState({});
 
   const refreshFees = () => setFees(buildAdminFees());
   const [timetable, setTimetable] = useState(timetableData);
@@ -743,41 +751,72 @@ export default function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {fees.map(f => {
-                        const balance = f.allocated - f.paid;
-                        const pct = Math.round((f.paid / f.allocated) * 100);
+                      {fees.map(st => {
+                        const isExp = !!expandedStudents[st.regNo];
                         return (
-                          <tr key={f.id}>
-                            <td>
-                              <div className="td-name">{f.student}</div>
-                              <div className="td-meta">{f.regNo} · {f.dept}</div>
-                            </td>
-                            <td><span style={{ fontSize: 13 }}>{f.feeType}</span></td>
-                            <td style={{ fontWeight: 600 }}>₹{f.allocated.toLocaleString("en-IN")}</td>
-                            <td style={{ color: "#7ed321", fontWeight: 600 }}>₹{f.paid.toLocaleString("en-IN")}</td>
-                            <td style={{ color: balance > 0 ? "#e84545" : "#7ed321", fontWeight: 600 }}>
-                              ₹{balance.toLocaleString("en-IN")}
-                            </td>
-                            <td style={{ minWidth: 100 }}>
-                              <div style={{ fontSize: 11, marginBottom: 3, color: "rgba(255,255,255,0.4)" }}>{pct}%</div>
-                              <div className="fee-bar-bg">
-                                <div className="fee-bar-fill" style={{
-                                  width: `${pct}%`,
-                                  background: pct === 100 ? "#7ed321" : pct > 50 ? "#f5a623" : "#e84545"
-                                }} />
-                              </div>
-                            </td>
-                            <td>
-                              <span style={{
-                                background: balance === 0 ? "rgba(126,211,33,0.12)" : "rgba(232,69,69,0.12)",
-                                color: balance === 0 ? "#7ed321" : "#e84545",
-                                border: `1px solid ${balance === 0 ? "rgba(126,211,33,0.3)" : "rgba(232,69,69,0.3)"}`,
-                                borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 700
-                              }}>
-                                {balance === 0 ? "PAID" : "PENDING"}
-                              </span>
-                            </td>
-                          </tr>
+                          <React.Fragment key={st.id}>
+                            {/* Parent Row */}
+                            <tr style={{ background: isExp ? "rgba(255,255,255,0.02)" : "transparent", cursor: "pointer", transition: "all 0.2s" }} onClick={() => setExpandedStudents(p => ({ ...p, [st.regNo]: !isExp }))}>
+                              <td>
+                                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                  <div style={{ transform: isExp ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s", color: "rgba(255,255,255,0.4)", fontSize: 12 }}>▶</div>
+                                  <div>
+                                    <div className="td-name">{st.student}</div>
+                                    <div className="td-meta">{st.regNo} · {st.dept}</div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td><span style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>{st.details.length} Items</span></td>
+                              <td style={{ fontWeight: 600 }}>₹{st.allocated.toLocaleString("en-IN")}</td>
+                              <td style={{ color: "#7ed321", fontWeight: 600 }}>₹{st.paid.toLocaleString("en-IN")}</td>
+                              <td style={{ color: st.balance > 0 ? "#e84545" : "#7ed321", fontWeight: 600 }}>
+                                ₹{st.balance.toLocaleString("en-IN")}
+                              </td>
+                              <td style={{ minWidth: 100 }}>
+                                <div style={{ fontSize: 11, marginBottom: 3, color: "rgba(255,255,255,0.4)" }}>{st.pct}%</div>
+                                <div className="fee-bar-bg">
+                                  <div className="fee-bar-fill" style={{ width: `${st.pct}%`, background: st.pct === 100 ? "#7ed321" : st.pct > 50 ? "#f5a623" : "#e84545" }} />
+                                </div>
+                              </td>
+                              <td>
+                                <span style={{
+                                  background: st.balance === 0 ? "rgba(126,211,33,0.12)" : "rgba(232,69,69,0.12)",
+                                  color: st.balance === 0 ? "#7ed321" : "#e84545",
+                                  border: `1px solid ${st.balance === 0 ? "rgba(126,211,33,0.3)" : "rgba(232,69,69,0.3)"}`,
+                                  borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 700
+                                }}>
+                                  {st.balance === 0 ? "PAID" : "PENDING"}
+                                </span>
+                              </td>
+                            </tr>
+                            {/* Child Rows (Dropdown) */}
+                            {isExp && st.details.map(f => {
+                              const bal = f.allocated - f.paid;
+                              const fpct = Math.round((f.paid / f.allocated) * 100);
+                              return (
+                                <tr key={f.id} style={{ background: "rgba(255,255,255,0.01)" }}>
+                                  <td style={{ paddingLeft: 46 }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                      <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)" }} />
+                                      <span style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>└</span>
+                                    </div>
+                                  </td>
+                                  <td><span style={{ fontSize: 13 }}>{f.type.replace(" Fee", "")}</span></td>
+                                  <td style={{ fontWeight: 600, fontSize: 13, color: "rgba(255,255,255,0.8)" }}>₹{f.allocated.toLocaleString("en-IN")}</td>
+                                  <td style={{ color: "rgba(126,211,33,0.8)", fontWeight: 600, fontSize: 13 }}>₹{f.paid.toLocaleString("en-IN")}</td>
+                                  <td style={{ color: bal > 0 ? "rgba(232,69,69,0.8)" : "rgba(126,211,33,0.8)", fontWeight: 600, fontSize: 13 }}>
+                                    ₹{bal.toLocaleString("en-IN")}
+                                  </td>
+                                  <td style={{ minWidth: 100, paddingRight: 40 }}>
+                                    <div className="fee-bar-bg" style={{ height: 4 }}>
+                                      <div className="fee-bar-fill" style={{ width: `${fpct}%`, background: fpct === 100 ? "#7ed321" : fpct > 50 ? "#f5a623" : "#e84545" }} />
+                                    </div>
+                                  </td>
+                                  <td></td>
+                                </tr>
+                              )
+                            })}
+                          </React.Fragment>
                         );
                       })}
                     </tbody>
