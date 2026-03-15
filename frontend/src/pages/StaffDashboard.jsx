@@ -339,7 +339,7 @@ export default function StaffDashboard() {
           <div className="sb-foot">
             <div style={{ display:"flex", alignItems:"center", gap:10, overflow:"hidden" }}>
               <div className="av">👤</div>
-              {sidebarOpen && <div><div className="av-name">{user?.name || "Staff"}</div><div className="av-role">{user?.username}</div></div>}
+              {sidebarOpen && <div><div className="av-name">{user?.name || "Staff"}</div><div className="av-role">{user?.username} {isCoe && <span style={{ color:"#a855f7", fontWeight:800, fontSize:9 }}>(COE)</span>}</div></div>}
             </div>
             {sidebarOpen && (
               <button onClick={handleLogout} style={{
@@ -362,7 +362,7 @@ export default function StaffDashboard() {
               <span className="pg-title">{NAV.find(n => n.id === tab)?.label}</span>
             </div>
             <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-              <span className="staff-chip">Staff Access</span>
+              <span className="staff-chip" style={isCoe ? { background:"rgba(168,85,247,0.1)", color:"#a855f7", borderColor:"rgba(168,85,247,0.25)" } : {}}>{isCoe ? "COE Access" : "Staff Access"}</span>
               <span style={{ fontSize:12, color:"rgba(255,255,255,.3)" }}>
                 {new Date().toLocaleDateString("en-IN", { weekday:"short", day:"numeric", month:"short" })}
               </span>
@@ -403,9 +403,10 @@ export default function StaffDashboard() {
                       </div>
                       <span style={{ fontSize:20 }}>📖</span>
                     </div>
-                    <div style={{ display:"flex", gap:8, marginTop:12 }}>
+                    <div style={{ display:"flex", gap:8, marginTop:12, flexWrap:"wrap" }}>
                       <button className="btn-ghost" style={{ fontSize:11 }} onClick={() => { setSelSubject(s.id); setTab("attendance"); }}>Mark Attendance</button>
                       <button className="btn-ghost" style={{ fontSize:11 }} onClick={() => { setCiaSubject(s.id); setTab("cia"); }}>Enter CIA</button>
+                      {isCoe && <button className="btn-ghost" style={{ fontSize:11, background:"rgba(168,85,247,0.1)", color:"#a855f7" }} onClick={() => { setSemSubject(s.id); setTab("semester"); }}>Enter Sem Marks</button>}
                     </div>
                   </div>
                 ))}
