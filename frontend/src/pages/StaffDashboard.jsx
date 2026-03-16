@@ -3,6 +3,12 @@ import { useAuth } from "../context/AuthContext";
 import appLogo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { loadAllUsers } from "../utils/userStore";
+import { 
+  loadAttendance, saveAttendance as storeAttendance, 
+  loadCIAMarks, saveCIAMarks as storeCIAMarks, 
+  loadSemMarks, saveSemMarks as storeSemMarks,
+  loadStaffSessions, saveStaffSessions
+} from "../utils/staffStore";
 
 // ─── Mock Data ───────────────────────────────────────────────
 const SUBJECTS = [
@@ -12,16 +18,8 @@ const SUBJECTS = [
   { id: 4, code: "CS604", name: "Computer Networks",credits: 3, sem: 6 },
 ];
 
-const STUDENTS = [
-  { id: 1, regNo: "21CSE001", name: "Arjun Selvan",    dept: "CSE", sem: 6 },
-  { id: 2, regNo: "21CSE002", name: "Priya Lakshmi",   dept: "CSE", sem: 6 },
-  { id: 3, regNo: "21CSE003", name: "Karthik Raja",    dept: "CSE", sem: 6 },
-  { id: 4, regNo: "21CSE004", name: "Deepa Suresh",    dept: "CSE", sem: 6 },
-  { id: 5, regNo: "21CSE005", name: "Vignesh Kumar",   dept: "CSE", sem: 6 },
-  { id: 6, regNo: "21CSE006", name: "Meena Priya",     dept: "CSE", sem: 6 },
-  { id: 7, regNo: "21CSE007", name: "Rahul Natarajan", dept: "CSE", sem: 6 },
-  { id: 8, regNo: "21CSE008", name: "Sowmiya Raj",     dept: "CSE", sem: 6 },
-];
+// ─── Students are now dynamic ───────────────────────────────
+const getStudents = () => loadAllUsers().filter(u => u.role === "STUDENT");
 
 const PERIODS = [
   { id: 1, label: "P1", time: "9:00–10:00"  },
@@ -41,27 +39,27 @@ const STATUS_META = {
 
 const TODAY = new Date().toISOString().split("T")[0];
 
-const initAttendance = () => {
+const initAttendance = (students) => {
   const a = {};
-  STUDENTS.forEach(s => {
+  students.forEach(s => {
     a[s.id] = {};
     PERIODS.forEach(p => { a[s.id][p.id] = "A"; });
   });
   return a;
 };
 
-const initCIA = () => {
+const initCIA = (students) => {
   const m = {};
-  STUDENTS.forEach(s => {
+  students.forEach(s => {
     m[s.id] = {};
     SUBJECTS.forEach(sub => { m[s.id][sub.id] = { cia1: "", cia2: "", cia3: "" }; });
   });
   return m;
 };
 
-const initSem = () => {
+const initSem = (students) => {
   const m = {};
-  STUDENTS.forEach(s => {
+  students.forEach(s => {
     m[s.id] = {};
     SUBJECTS.forEach(sub => { m[s.id][sub.id] = ""; });
   });
@@ -81,20 +79,44 @@ const SUBJ_COLORS = ["#f59e0b","#10b981","#4a90e2","#c084fc"];
 export default function StaffDashboard() {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
-  const isCoe = loadAllUsers().find(u => u.username === user?.username)?.isCoe === true;
+  const allUsers = loadAllUsers();
+  const STUDENTS = allUsers.filter(u => u.role === "STUDENT");
+  const isCoe = allUsers.find(u => u.username === user?.username)?.isCoe === true;
   const handleLogout = () => { logout(); navigate("/login"); };
   const [tab, setTab]               = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selSubject, setSelSubject]   = useState(SUBJECTS[0].id);
   const [selDate, setSelDate]         = useState(TODAY);
-  const [attendance, setAttendance]   = useState(initAttendance);
-  const [savedSessions, setSavedSessions] = useState([]);
-  const [ciaMarks, setCiaMarks]       = useState(initCIA);
+  const [attendance, setAttendance]   = useState(() => initAttendance(STUDENTS));
+  const [savedSessions, setSavedSessions] = useState(loadStaffSessions);
+  const [ciaMarks, setCiaMarks]       = useState(() => initCIA(STUDENTS));
   const [ciaSubject, setCiaSubject]   = useState(SUBJECTS[0].id);
-  const [semMarks, setSemMarks]       = useState(initSem);
+  const [semMarks, setSemMarks]       = useState(() => initSem(STUDENTS));
   const [semSubject, setSemSubject]   = useState(SUBJECTS[0].id);
   const [studentSearch, setStudentSearch] = useState("");
   const [toast, setToast]             = useState("");
+
+  // Sync Attendance from store
+  useEffect(() => {
+    const saved = loadAttendance(selSubject, selDate);
+    if (saved) {
+      setAttendance(saved);
+    } else {
+      setAttendance(initAttendance(STUDENTS));
+    }
+  }, [selSubject, selDate]);
+
+  // Sync CIA from store
+  useEffect(() => {
+    const saved = loadCIAMarks(ciaSubject);
+    if (saved) setCiaMarks(prev => ({ ...prev, ...Object.fromEntries(STUDENTS.map(s => [s.id, { ...prev[s.id], [ciaSubject]: saved[s.id] || { cia1: "", cia2: "", cia3: "" } }])) }));
+  }, [ciaSubject]);
+
+  // Sync SEM from store
+  useEffect(() => {
+    const saved = loadSemMarks(semSubject);
+    if (saved) setSemMarks(prev => ({ ...prev, ...Object.fromEntries(STUDENTS.map(s => [s.id, { ...prev[s.id], [semSubject]: saved[s.id] || "" }])) }));
+  }, [semSubject]);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -125,12 +147,20 @@ export default function StaffDashboard() {
   const saveAttendance = () => {
     const subjName = SUBJECTS.find(s => s.id === selSubject)?.name || "";
     const present  = STUDENTS.filter(s =>
-      Object.values(attendance[s.id]).some(v => v === "P" || v === "OD")
+      Object.values(attendance[s.id] || {}).some(v => v === "P" || v === "OD")
     ).length;
-    setSavedSessions(prev => [{
+    
+    // Persist session
+    const newSessions = [{
       id: Date.now(), date: selDate, subject: subjName,
       total: STUDENTS.length, present,
-    }, ...prev.slice(0, 4)]);
+    }, ...savedSessions.slice(0, 4)];
+    setSavedSessions(newSessions);
+    saveStaffSessions(newSessions);
+
+    // Persist actual attendance grid
+    storeAttendance(selSubject, selDate, attendance);
+    
     showToast("✅ Attendance saved for " + subjName);
   };
 
@@ -509,7 +539,11 @@ export default function StaffDashboard() {
             {tab === "cia" && (<>
               <div className="sec-hd">
                 <div><div className="sec-title">CIA Marks Entry</div><div className="sec-sub">Max 50 per CIA · 3 exams per subject · Best 2 of 3 counted</div></div>
-                <button className="btn-green" onClick={() => showToast("✅ CIA Marks Saved!")}>💾 Save Marks</button>
+                <button className="btn-green" onClick={() => {
+                  const dataToSave = Object.fromEntries(STUDENTS.map(s => [s.id, ciaMarks[s.id]?.[ciaSubject]]));
+                  storeCIAMarks(ciaSubject, dataToSave);
+                  showToast("✅ CIA Marks Saved!");
+                }}>💾 Save Marks</button>
               </div>
 
               {/* Subject Tabs */}
@@ -621,7 +655,11 @@ export default function StaffDashboard() {
             {tab === "semester" && isCoe && (<>
               <div className="sec-hd">
                 <div><div className="sec-title">COE Mark Entry</div><div className="sec-sub">Max 100 · Pass ≥ 50 · Grade: O/A+/A/B+/B/F</div></div>
-                <button className="btn-green" onClick={() => showToast("✅ Semester marks saved!")}>💾 Save Marks</button>
+                <button className="btn-green" onClick={() => {
+                  const dataToSave = Object.fromEntries(STUDENTS.map(s => [s.id, semMarks[s.id]?.[semSubject]]));
+                  storeSemMarks(semSubject, dataToSave);
+                  showToast("✅ Semester marks saved!");
+                }}>💾 Save Marks</button>
               </div>
               <div className="info-box">⚠️ You are acting as COE. These grades are final and directly update student report cards.</div>
               <div className="sub-tabs">
