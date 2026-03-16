@@ -84,7 +84,7 @@ export default function StudentDashboard() {
 
   /* ── build marks data whenever viewSem or STUDENT changes ── */
   useEffect(() => {
-    const semSubjects = allSubjects.filter(s => s.sem === viewSem);
+    const semSubjects = allSubjects.filter(s => Number(s.sem) === Number(viewSem));
     const built = semSubjects.map(sub => {
       const ciaStore = loadCIAMarks(sub.id) || {};
       const semStore = loadSemMarks(sub.id) || {};
@@ -401,7 +401,7 @@ export default function StudentDashboard() {
             {/* ══ ATTENDANCE ═══════════════════════════════ */}
             {tab === "attendance" && (<>
               <div className="sd-sec-hd"><div><div className="sd-sec-title">Attendance</div><div className="sd-sec-sub">Current Semester {STUDENT.sem || 6}</div></div></div>
-              {allSubjects.filter(s => s.sem === (STUDENT.sem || 6)).length === 0 ? (
+              {allSubjects.filter(s => Number(s.sem) === Number(STUDENT.sem || 6)).length === 0 ? (
                 <div className="sd-empty"><div className="sd-empty-icon">📊</div><div style={{ fontWeight:700 }}>No subjects configured for this semester</div></div>
               ) : (
                 <div className="sd-tbl-wrap">
