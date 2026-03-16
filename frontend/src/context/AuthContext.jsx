@@ -1,14 +1,15 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { validateLogin } from "../utils/userStore";
 
 const AuthContext = createContext(null);
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
 export function AuthProvider({ children }) {
-  const [user, setUser]       = useState(null);   // { username, role, token, name }
-  const [loading, setLoading] = useState(true);   // true while checking stored token
+  const [user, setUser]       = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // ── Restore session from localStorage on mount ──────────────
+  // Restore session from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem("erp_token");
     const role   = localStorage.getItem("erp_role");
@@ -20,47 +21,51 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
-  // ── Login ────────────────────────────────────────────────────
   const login = async (username, password, role) => {
+    // First try backend
     try {
       const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, role }),
+        signal: AbortSignal.timeout(3000),
       });
 
-      if (!res.ok) {
-        let msg = "Invalid credentials";
-        try { const err = await res.json(); msg = err.message || msg; } catch(e) {}
-        throw new Error(msg);
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem("erp_token",    data.token);
+        localStorage.setItem("erp_role",     data.role);
+        localStorage.setItem("erp_username", data.username);
+        localStorage.setItem("erp_name",     data.name || data.username);
+        setUser({ token: data.token, role: data.role, username: data.username, name: data.name || data.username });
+        return data.role;
       }
 
-      const data = await res.json();   // { token, role, username, name }
-      localStorage.setItem("erp_token",    data.token);
-      localStorage.setItem("erp_role",     data.role);
-      localStorage.setItem("erp_username", data.username);
-      localStorage.setItem("erp_name",     data.name || data.username);
-      setUser({ token: data.token, role: data.role, username: data.username, name: data.name || data.username });
-      return data.role;
-    } catch(err) {
-      console.warn("Backend fetch failed. Using local mock login for demo purposes.", err);
-      // Fallback local mock login for Vercel Demo
-      let mockName = username;
-      if (role === "ADMIN") mockName = "System Administrator";
-      if (role === "STAFF") mockName = "Professor";
-      if (role === "STUDENT") mockName = "Arjun Selvan";
-      
-      const mockToken = "mock_jwt_token_12345";
-      localStorage.setItem("erp_token", mockToken);
-      localStorage.setItem("erp_role", role);
-      localStorage.setItem("erp_username", username);
-      localStorage.setItem("erp_name", mockName);
-      setUser({ token: mockToken, role, username, name: mockName });
-      return role;
+      // Backend returned error (wrong password)
+      let msg = "Invalid credentials";
+      try { const err = await res.json(); msg = err.message || msg; } catch(e) {}
+      throw new Error(msg);
+
+    } catch (err) {
+      // Backend not available — validate against local userStore
+      if (err.name === "AbortError" || err.message === "Failed to fetch" || err.name === "TypeError") {
+        // Local auth fallback
+        const found = validateLogin(username, password, role);
+        if (!found) {
+          throw new Error("Invalid username or password.");
+        }
+        const mockToken = `local_token_${Date.now()}`;
+        localStorage.setItem("erp_token",    mockToken);
+        localStorage.setItem("erp_role",     found.role);
+        localStorage.setItem("erp_username", found.username);
+        localStorage.setItem("erp_name",     found.name);
+        setUser({ token: mockToken, role: found.role, username: found.username, name: found.name });
+        return found.role;
+      }
+      throw err;
     }
   };
 
-  // ── Logout ───────────────────────────────────────────────────
   const logout = () => {
     localStorage.removeItem("erp_token");
     localStorage.removeItem("erp_role");
@@ -69,7 +74,6 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
-  // ── Authenticated fetch helper ───────────────────────────────
   const authFetch = (url, options = {}) => {
     return fetch(`${API_BASE}${url}`, {
       ...options,
@@ -88,7 +92,6 @@ export function AuthProvider({ children }) {
   );
 }
 
-// Custom hook
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");

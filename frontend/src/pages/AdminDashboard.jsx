@@ -155,13 +155,11 @@ export default function AdminDashboard() {
   };
 
   const [editTimetableCell, setEditTimetableCell] = useState(null);
-  const [newUser, setNewUser] = useState({ 
-    name: "", username: "", email: "", role: "STUDENT", dept: "CSE", 
-    password: "", isCoe: false, batch: "2021-2025", phone: "", dob: "", advisor: "" 
-  });
+  const EMPTY_USER = { name: "", username: "", email: "", role: "STUDENT", dept: "CSE", password: "", isCoe: false, batch: "2021-2025", sem: 6, phone: "", dob: "", advisor: "", address: "" };
+  const [newUser, setNewUser] = useState(EMPTY_USER);
   const [showEditUser, setShowEditUser] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
-  const [newFee, setNewFee] = useState({ student: "", regNo: "", dept: "CSE", feeType: "Tuition", allocated: "", year: "2024-25" });
+  const [newFee, setNewFee] = useState({ regNo: "", dept: "CSE", feeType: "Tuition", allocated: "", year: "2024-25" });
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const handleLogout = () => {
@@ -185,10 +183,32 @@ export default function AdminDashboard() {
   });
 
   const handleAddUser = () => {
-    const updatedUsers = [...users, { id: Date.now(), ...newUser, status: true }];
+    if (!newUser.name.trim() || !newUser.username.trim() || !newUser.password.trim()) {
+      alert("Please fill in Name, Username, and Password.");
+      return;
+    }
+    if (users.find(u => u.username === newUser.username.trim())) {
+      alert("Username already exists. Please use a different one.");
+      return;
+    }
+    const entry = {
+      ...newUser,
+      id: Date.now(),
+      name: newUser.name.trim(),
+      username: newUser.username.trim(),
+      email: newUser.email.trim() || `${newUser.username.trim()}@bhcollege.edu`,
+      status: true,
+      // student-specific
+      regNo: newUser.role === "STUDENT" ? newUser.username.trim() : undefined,
+      sem: newUser.role === "STUDENT" ? (Number(newUser.sem) || 1) : undefined,
+      // staff-specific
+      staffCode: newUser.role === "STAFF" ? newUser.username.trim() : undefined,
+      isCoe: newUser.role === "STAFF" ? !!newUser.isCoe : false,
+    };
+    const updatedUsers = [...users, entry];
     setUsers(updatedUsers);
     saveAllUsers(updatedUsers);
-    setNewUser({ name: "", username: "", email: "", role: "STUDENT", dept: "CSE", password: "", isCoe: false, batch: "2021-2025", phone: "", dob: "", advisor: "" });
+    setNewUser(EMPTY_USER);
     setShowAddUser(false);
     refreshFees();
   };
@@ -204,6 +224,52 @@ export default function AdminDashboard() {
     saveAllUsers(updatedUsers);
     setShowEditUser(false);
     setEditingUser(null);
+    refreshFees();
+  };
+
+  const handleAddFee = () => {
+    const { regNo, student, dept, feeType, allocated, year } = newFee;
+    if (!regNo || !allocated || Number(allocated) <= 0) {
+      alert("Please fill in Register No. and a valid Amount.");
+      return;
+    }
+    const existingFees = loadStudentFees(regNo);
+    const newEntry = {
+      id: Date.now(),
+      type: `${feeType} Fee`,
+      allocated: Number(allocated),
+      paid: 0,
+      year,
+      receipts: [],
+    };
+    const updatedFees = [...existingFees, newEntry];
+    saveStudentFees(regNo, updatedFees);
+    // Make sure user exists with this regNo
+    const allU = loadAllUsers();
+    if (!allU.find(u => u.username === regNo)) {
+      const newStud = {
+        id: Date.now() + 1,
+        name: student || regNo,
+        username: regNo,
+        email: `${regNo}@student.edu`,
+        role: "STUDENT",
+        dept,
+        status: true,
+        regNo,
+        sem: 6,
+        batch: "2021-2025",
+        phone: "",
+        dob: "",
+        advisor: "",
+        address: "",
+        isCoe: false,
+      };
+      const updatedUsers = [...allU, newStud];
+      saveAllUsers(updatedUsers);
+      setUsers(updatedUsers);
+    }
+    setNewFee({ student: "", regNo: "", dept: "CSE", feeType: "Tuition", allocated: "", year: "2024-25" });
+    setShowAddFee(false);
     refreshFees();
   };
 
@@ -950,29 +1016,36 @@ export default function AdminDashboard() {
         {showAddUser && (
           <Modal title="Add New User" onClose={() => setShowAddUser(false)}>
             <div className="form-row">
-              <FormInput label="Full Name" value={newUser.name} onChange={e => setNewUser({ ...newUser, name: e.target.value })} placeholder="e.g. Arjun Selvan" />
-              <FormInput label="Username / Reg No." value={newUser.username} onChange={e => setNewUser({ ...newUser, username: e.target.value })} placeholder="e.g. 21CSE001" />
+              <FormInput label="Full Name *" value={newUser.name} onChange={e => setNewUser({ ...newUser, name: e.target.value })} placeholder="e.g. Arjun Selvan" />
+              <FormInput label="Username / Reg No. *" value={newUser.username} onChange={e => setNewUser({ ...newUser, username: e.target.value })} placeholder="e.g. 21CSE001" />
             </div>
-            <FormInput label="Email" type="email" value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} placeholder="user@college.edu" />
+            <FormInput label="Email" type="email" value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} placeholder="user@college.edu (auto-generated if blank)" />
             <div className="form-row">
-              <FormInput label="Role" type="select" value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })} options={["STUDENT", "STAFF", "ADMIN"]} />
-              <FormInput label="Department" type="select" value={newUser.dept} onChange={e => setNewUser({ ...newUser, dept: e.target.value })} options={["CSE", "ECE", "MECH", "CIVIL"]} />
+              <FormInput label="Role *" type="select" value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })} options={["STUDENT", "STAFF"]} />
+              <FormInput label="Department *" type="select" value={newUser.dept} onChange={e => setNewUser({ ...newUser, dept: e.target.value })} options={["CSE", "ECE", "MECH", "CIVIL"]} />
             </div>
-            {newUser.role === "STUDENT" && (
+            {newUser.role === "STUDENT" && (<>
+              <div className="form-row">
+                <FormInput label="Semester *" type="select" value={String(newUser.sem)} onChange={e => setNewUser({ ...newUser, sem: Number(e.target.value) })} options={["1","2","3","4","5","6","7","8"]} />
+                <FormInput label="Batch" value={newUser.batch} onChange={e => setNewUser({ ...newUser, batch: e.target.value })} placeholder="e.g. 2021-2025" />
+              </div>
               <div className="form-row">
                 <FormInput label="Phone" value={newUser.phone} onChange={e => setNewUser({ ...newUser, phone: e.target.value })} placeholder="+91..." />
-                <FormInput label="DOB" value={newUser.dob} onChange={e => setNewUser({ ...newUser, dob: e.target.value })} placeholder="e.g. 12 March 2003" />
+                <FormInput label="Date of Birth" value={newUser.dob} onChange={e => setNewUser({ ...newUser, dob: e.target.value })} placeholder="e.g. 12 March 2003" />
               </div>
-            )}
+              <FormInput label="Faculty Advisor" value={newUser.advisor} onChange={e => setNewUser({ ...newUser, advisor: e.target.value })} placeholder="Staff name" />
+              <FormInput label="Address" value={newUser.address} onChange={e => setNewUser({ ...newUser, address: e.target.value })} placeholder="Home address" />
+            </>)}
             {newUser.role === "STAFF" && (
               <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#fff", marginBottom: 16 }}>
                 <input type="checkbox" checked={newUser.isCoe} onChange={e => setNewUser({ ...newUser, isCoe: e.target.checked })} />
-                Assign COE (Controller of Examinations) privileges
+                Assign COE (Controller of Examinations) access
               </label>
             )}
-            <FormInput label="Password" type="password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} placeholder="Enter secure password" />
+            <FormInput label="Password *" type="password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} placeholder="Create a login password" />
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginBottom: 16 }}>* Required fields. The user will log in with this username and password.</div>
             <div className="modal-actions">
-              <button className="btn-cancel" onClick={() => setShowAddUser(false)}>Cancel</button>
+              <button className="btn-cancel" onClick={() => { setShowAddUser(false); setNewUser(EMPTY_USER); }}>Cancel</button>
               <button className="btn-submit" onClick={handleAddUser}>Create User</button>
             </div>
           </Modal>
@@ -982,27 +1055,33 @@ export default function AdminDashboard() {
         {showEditUser && editingUser && (
           <Modal title="Edit User" onClose={() => setShowEditUser(false)}>
             <div className="form-row">
-              <FormInput label="Full Name" value={editingUser.name} onChange={e => setEditingUser({ ...editingUser, name: e.target.value })} placeholder="e.g. Arjun Selvan" />
-              <FormInput label="Username / Reg No." value={editingUser.username} onChange={e => setEditingUser({ ...editingUser, username: e.target.value })} placeholder="e.g. 21CSE001" />
+              <FormInput label="Full Name" value={editingUser.name} onChange={e => setEditingUser({ ...editingUser, name: e.target.value })} placeholder="Full name" />
+              <FormInput label="Username" value={editingUser.username} onChange={e => setEditingUser({ ...editingUser, username: e.target.value })} placeholder="username" />
             </div>
-            <FormInput label="Email" type="email" value={editingUser.email} onChange={e => setEditingUser({ ...editingUser, email: e.target.value })} placeholder="user@college.edu" />
+            <FormInput label="Email" type="email" value={editingUser.email || ""} onChange={e => setEditingUser({ ...editingUser, email: e.target.value })} placeholder="user@college.edu" />
             <div className="form-row">
               <FormInput label="Role" type="select" value={editingUser.role} onChange={e => setEditingUser({ ...editingUser, role: e.target.value })} options={["STUDENT", "STAFF", "ADMIN"]} />
               <FormInput label="Department" type="select" value={editingUser.dept} onChange={e => setEditingUser({ ...editingUser, dept: e.target.value })} options={["CSE", "ECE", "MECH", "CIVIL"]} />
             </div>
-            {editingUser.role === "STUDENT" && (
+            {editingUser.role === "STUDENT" && (<>
+              <div className="form-row">
+                <FormInput label="Semester" type="select" value={String(editingUser.sem || 1)} onChange={e => setEditingUser({ ...editingUser, sem: Number(e.target.value) })} options={["1","2","3","4","5","6","7","8"]} />
+                <FormInput label="Batch" value={editingUser.batch || ""} onChange={e => setEditingUser({ ...editingUser, batch: e.target.value })} placeholder="e.g. 2021-2025" />
+              </div>
               <div className="form-row">
                 <FormInput label="Phone" value={editingUser.phone || ""} onChange={e => setEditingUser({ ...editingUser, phone: e.target.value })} placeholder="+91..." />
-                <FormInput label="DOB" value={editingUser.dob || ""} onChange={e => setEditingUser({ ...editingUser, dob: e.target.value })} placeholder="e.g. 12 March 2003" />
+                <FormInput label="Date of Birth" value={editingUser.dob || ""} onChange={e => setEditingUser({ ...editingUser, dob: e.target.value })} placeholder="e.g. 12 March 2003" />
               </div>
-            )}
+              <FormInput label="Faculty Advisor" value={editingUser.advisor || ""} onChange={e => setEditingUser({ ...editingUser, advisor: e.target.value })} placeholder="Staff name" />
+              <FormInput label="Address" value={editingUser.address || ""} onChange={e => setEditingUser({ ...editingUser, address: e.target.value })} placeholder="Home address" />
+            </>)}
             {editingUser.role === "STAFF" && (
               <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#fff", marginBottom: 16 }}>
-                <input type="checkbox" checked={editingUser.isCoe} onChange={e => setEditingUser({ ...editingUser, isCoe: e.target.checked })} />
-                Assign COE (Controller of Examinations) privileges
+                <input type="checkbox" checked={!!editingUser.isCoe} onChange={e => setEditingUser({ ...editingUser, isCoe: e.target.checked })} />
+                COE (Controller of Examinations) Access
               </label>
             )}
-            <FormInput label="Password (leave blank to keep current)" type="password" value={editingUser.password} onChange={e => setEditingUser({ ...editingUser, password: e.target.value })} placeholder="Enter new password" />
+            <FormInput label="New Password (leave blank to keep current)" type="password" value={editingUser.password || ""} onChange={e => setEditingUser({ ...editingUser, password: e.target.value })} placeholder="Enter new password" />
             <div className="modal-actions">
               <button className="btn-cancel" onClick={() => setShowEditUser(false)}>Cancel</button>
               <button className="btn-submit" onClick={handleUpdateUser}>Update User</button>
@@ -1013,21 +1092,27 @@ export default function AdminDashboard() {
         {/* ── ADD FEE MODAL ──────────────────────── */}
         {showAddFee && (
           <Modal title="Allocate Fee" onClose={() => setShowAddFee(false)}>
-            <div className="form-row">
-              <FormInput label="Student Name" value={newFee.student} onChange={e => setNewFee({ ...newFee, student: e.target.value })} placeholder="Full name" />
-              <FormInput label="Register No." value={newFee.regNo} onChange={e => setNewFee({ ...newFee, regNo: e.target.value })} placeholder="e.g. 21CSE001" />
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Select Student *</label>
+              <select
+                value={newFee.regNo}
+                onChange={e => setNewFee({ ...newFee, regNo: e.target.value })}
+                style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "11px 14px", color: "#fff", fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: "none", boxSizing: "border-box", appearance: "none" }}
+              >
+                <option value="" style={{ background: "#14141f" }}>-- Select Student --</option>
+                {users.filter(u => u.role === "STUDENT").map(u => (
+                  <option key={u.username} value={u.username} style={{ background: "#14141f" }}>{u.name} ({u.username})</option>
+                ))}
+              </select>
             </div>
             <div className="form-row">
-              <FormInput label="Fee Type" type="select" value={newFee.feeType} onChange={e => setNewFee({ ...newFee, feeType: e.target.value })} options={["Tuition", "Transport", "Hostel", "Exam", "Lab"]} />
-              <FormInput label="Department" type="select" value={newFee.dept} onChange={e => setNewFee({ ...newFee, dept: e.target.value })} options={["CSE", "ECE", "MECH", "CIVIL"]} />
+              <FormInput label="Fee Type *" type="select" value={newFee.feeType} onChange={e => setNewFee({ ...newFee, feeType: e.target.value })} options={["Tuition", "Transport", "Hostel", "Exam", "Lab", "Library"]} />
+              <FormInput label="Academic Year *" type="select" value={newFee.year} onChange={e => setNewFee({ ...newFee, year: e.target.value })} options={["2024-25", "2025-26", "2023-24"]} />
             </div>
-            <div className="form-row">
-              <FormInput label="Amount (₹)" type="number" value={newFee.allocated} onChange={e => setNewFee({ ...newFee, allocated: e.target.value })} placeholder="e.g. 45000" />
-              <FormInput label="Academic Year" type="select" value={newFee.year} onChange={e => setNewFee({ ...newFee, year: e.target.value })} options={["2024-25", "2025-26"]} />
-            </div>
+            <FormInput label="Amount (₹) *" type="number" value={newFee.allocated} onChange={e => setNewFee({ ...newFee, allocated: e.target.value })} placeholder="e.g. 45000" />
             <div className="modal-actions">
               <button className="btn-cancel" onClick={() => setShowAddFee(false)}>Cancel</button>
-              <button className="btn-submit" onClick={handleAddFee}>Allocate</button>
+              <button className="btn-submit" onClick={handleAddFee}>Allocate Fee</button>
             </div>
           </Modal>
         )}
