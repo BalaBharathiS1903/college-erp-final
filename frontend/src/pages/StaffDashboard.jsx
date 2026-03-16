@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import appLogo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { loadAllUsers } from "../utils/userStore";
+import { loadCollegeConfig } from "../utils/collegeStore";
 import { 
   loadAttendance, saveAttendance as storeAttendance, 
   loadCIAMarks, saveCIAMarks as storeCIAMarks, 
@@ -11,12 +12,8 @@ import {
 } from "../utils/staffStore";
 
 // ─── Mock Data ───────────────────────────────────────────────
-const SUBJECTS = [
-  { id: 1, code: "CS601", name: "Data Structures",  credits: 3, sem: 6 },
-  { id: 2, code: "CS602", name: "DBMS",             credits: 4, sem: 6 },
-  { id: 3, code: "CS603", name: "Operating Systems",credits: 3, sem: 6 },
-  { id: 4, code: "CS604", name: "Computer Networks",credits: 3, sem: 6 },
-];
+// ─── Subjects are now dynamic ──────────────────────────────
+const getCollegeSubjects = () => loadCollegeConfig().subjects;
 
 // ─── Students are now dynamic ───────────────────────────────
 const getStudents = () => loadAllUsers().filter(u => u.role === "STUDENT");
@@ -48,20 +45,20 @@ const initAttendance = (students) => {
   return a;
 };
 
-const initCIA = (students) => {
+const initCIA = (students, subjects) => {
   const m = {};
   students.forEach(s => {
     m[s.id] = {};
-    SUBJECTS.forEach(sub => { m[s.id][sub.id] = { cia1: "", cia2: "", cia3: "" }; });
+    subjects.forEach(sub => { m[s.id][sub.id] = { cia1: "", cia2: "", cia3: "" }; });
   });
   return m;
 };
 
-const initSem = (students) => {
+const initSem = (students, subjects) => {
   const m = {};
   students.forEach(s => {
     m[s.id] = {};
-    SUBJECTS.forEach(sub => { m[s.id][sub.id] = ""; });
+    subjects.forEach(sub => { m[s.id][sub.id] = ""; });
   });
   return m;
 };
@@ -81,18 +78,19 @@ export default function StaffDashboard() {
   const navigate = useNavigate();
   const allUsers = loadAllUsers();
   const STUDENTS = allUsers.filter(u => u.role === "STUDENT");
+  const SUBJECTS = getCollegeSubjects();
   const isCoe = allUsers.find(u => u.username === user?.username)?.isCoe === true;
   const handleLogout = () => { logout(); navigate("/login"); };
   const [tab, setTab]               = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [selSubject, setSelSubject]   = useState(SUBJECTS[0].id);
+  const [selSubject, setSelSubject]   = useState(SUBJECTS[0]?.id || 1);
   const [selDate, setSelDate]         = useState(TODAY);
   const [attendance, setAttendance]   = useState(() => initAttendance(STUDENTS));
   const [savedSessions, setSavedSessions] = useState(loadStaffSessions);
-  const [ciaMarks, setCiaMarks]       = useState(() => initCIA(STUDENTS));
-  const [ciaSubject, setCiaSubject]   = useState(SUBJECTS[0].id);
-  const [semMarks, setSemMarks]       = useState(() => initSem(STUDENTS));
-  const [semSubject, setSemSubject]   = useState(SUBJECTS[0].id);
+  const [ciaMarks, setCiaMarks]       = useState(() => initCIA(STUDENTS, SUBJECTS));
+  const [ciaSubject, setCiaSubject]   = useState(SUBJECTS[0]?.id || 1);
+  const [semMarks, setSemMarks]       = useState(() => initSem(STUDENTS, SUBJECTS));
+  const [semSubject, setSemSubject]   = useState(SUBJECTS[0]?.id || 1);
   const [studentSearch, setStudentSearch] = useState("");
   const [toast, setToast]             = useState("");
 
@@ -408,7 +406,7 @@ export default function StaffDashboard() {
                   { lbl:"My Subjects",   val:SUBJECTS.length,  icon:"📘", clr:"#f59e0b", sub:"Semester 6" },
                   { lbl:"My Students",   val:STUDENTS.length,  icon:"🎓", clr:"#10b981", sub:"CSE Batch"  },
                   { lbl:"Today's Slots", val:PERIODS.length,   icon:"🕐", clr:"#c084fc", sub:"Periods"    },
-                  { lbl:"Avg Attendance",val:`${Math.round(attStats.reduce((s,a)=>s+a.pct,0)/attStats.length)}%`,
+                  { lbl:"Avg Attendance",val:`${attStats.length ? Math.round(attStats.reduce((s,a)=>s+a.pct,0)/attStats.length) : 0}%`,
                     icon:"📊", clr:"#4ade80", sub:"Overall" },
                 ].map(c => (
                   <div className="mc" key={c.lbl}>

@@ -5,65 +5,38 @@ import { useNavigate } from "react-router-dom";
 import { loadAllFees, loadStudentFees, saveStudentFees } from "../utils/feeStore";
 
 import { loadAllUsers, saveAllUsers } from "../utils/userStore";
+import { loadCollegeConfig, saveCollegeConfig } from "../utils/collegeStore";
 
-// Student names for fee display
-const studentNames = {
-  "21CSE001": { name: "Arjun Selvan", dept: "CSE" },
-  "21CSE002": { name: "Priya Lakshmi", dept: "CSE" },
-};
+// Statics like days/periods remain constant but config is dynamic
+const DAYS = ["MON", "TUE", "WED", "THU", "FRI"];
+const PERIODS = ["9:00-10:00", "10:00-11:00", "11:00-12:00", "12:00-1:00", "2:00-3:00", "3:00-4:00"];
 
 // Build grouped fee rows by student from shared store
-function buildAdminFees() {
+function buildAdminFees(allUsers) {
   const allFees = loadAllFees();
   const students = [];
   let id = 1;
+
   for (const [regNo, studentFees] of Object.entries(allFees)) {
-    const info = studentNames[regNo] || { name: regNo, dept: "" };
+    const userObj = allUsers.find(u => u.username === regNo);
+    const name = userObj ? userObj.name : regNo;
+    const dept = userObj ? userObj.dept : "";
     
-    // Filter to current year
     const currentFees = studentFees.filter(f => f.year === "2024-25");
     if (currentFees.length === 0) continue;
 
-    // Calculate totals for the student
     const stAllocated = currentFees.reduce((sum, f) => sum + f.allocated, 0);
     const stPaid = currentFees.reduce((sum, f) => sum + f.paid, 0);
 
     students.push({
-      id: id++,
-      student: info.name,
-      regNo,
-      dept: info.dept,
-      allocated: stAllocated,
-      paid: stPaid,
-      balance: stAllocated - stPaid,
+      id: id++, student: name, regNo, dept,
+      allocated: stAllocated, paid: stPaid, balance: stAllocated - stPaid,
       pct: stAllocated > 0 ? Math.round((stPaid / stAllocated) * 100) : 0,
-      details: currentFees // The nested fees
+      details: currentFees
     });
   }
   return students;
 }
-
-const subjects = ["Data Structures", "DBMS", "OS", "CN", "SE", "Maths III"];
-const days = ["MON", "TUE", "WED", "THU", "FRI"];
-const periods = ["9:00-10:00", "10:00-11:00", "11:00-12:00", "12:00-1:00", "2:00-3:00", "3:00-4:00"];
-
-const timetableData = {
-  MON: ["Data Structures", "DBMS", "OS", "", "CN", "SE"],
-  TUE: ["OS", "CN", "Data Structures", "", "Maths III", "DBMS"],
-  WED: ["Maths III", "SE", "", "CN", "Data Structures", ""],
-  THU: ["CN", "Data Structures", "DBMS", "", "SE", "OS"],
-  FRI: ["DBMS", "Maths III", "SE", "", "OS", "CN"],
-};
-
-const subjectColors = {
-  "Data Structures": "#e84545",
-  "DBMS":            "#f5a623",
-  "OS":              "#4a90e2",
-  "CN":              "#7ed321",
-  "SE":              "#bd10e0",
-  "Maths III":       "#50e3c2",
-  "":                "transparent",
-};
 
 // We calculate stats dynamically inside the component instead of here
 
@@ -146,11 +119,15 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [users, setUsers] = useState(loadAllUsers);
-  const [fees, setFees] = useState(buildAdminFees);
+  
+  const [collegeConfig, setCollegeConfig] = useState(loadCollegeConfig);
+  const { subjects: subjObjects, timetable, subjectColors } = collegeConfig;
+  const subjects = subjObjects.map(s => s.name);
+
+  const [fees, setFees] = useState(() => buildAdminFees(users));
   const [expandedStudents, setExpandedStudents] = useState({});
 
-  const refreshFees = () => setFees(buildAdminFees());
-  const [timetable, setTimetable] = useState(timetableData);
+  const refreshFees = () => setFees(buildAdminFees(loadAllUsers()));
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("ALL");
   const [showAddUser, setShowAddUser] = useState(false);
@@ -178,7 +155,10 @@ export default function AdminDashboard() {
   };
 
   const [editTimetableCell, setEditTimetableCell] = useState(null);
-  const [newUser, setNewUser] = useState({ name: "", username: "", email: "", role: "STUDENT", dept: "CSE", password: "", isCoe: false });
+  const [newUser, setNewUser] = useState({ 
+    name: "", username: "", email: "", role: "STUDENT", dept: "CSE", 
+    password: "", isCoe: false, batch: "2021-2025", phone: "", dob: "", advisor: "" 
+  });
   const [showEditUser, setShowEditUser] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [newFee, setNewFee] = useState({ student: "", regNo: "", dept: "CSE", feeType: "Tuition", allocated: "", year: "2024-25" });
@@ -208,8 +188,9 @@ export default function AdminDashboard() {
     const updatedUsers = [...users, { id: Date.now(), ...newUser, status: true }];
     setUsers(updatedUsers);
     saveAllUsers(updatedUsers);
-    setNewUser({ name: "", username: "", email: "", role: "STUDENT", dept: "CSE", password: "", isCoe: false });
+    setNewUser({ name: "", username: "", email: "", role: "STUDENT", dept: "CSE", password: "", isCoe: false, batch: "2021-2025", phone: "", dob: "", advisor: "" });
     setShowAddUser(false);
+    refreshFees();
   };
 
   const handleEditUser = (user) => {
@@ -223,27 +204,14 @@ export default function AdminDashboard() {
     saveAllUsers(updatedUsers);
     setShowEditUser(false);
     setEditingUser(null);
-  };
-
-  const handleAddFee = () => {
-    const stFees = loadStudentFees(newFee.regNo);
-    const newFeeRecord = { 
-      id: Date.now(), 
-      type: newFee.feeType + (newFee.feeType.endsWith("Fee") ? "" : " Fee"),
-      allocated: Number(newFee.allocated), 
-      paid: 0, 
-      year: newFee.year, 
-      receipts: [] 
-    };
-    stFees.push(newFeeRecord);
-    saveStudentFees(newFee.regNo, stFees);
     refreshFees();
-    setNewFee({ student: "", regNo: "", dept: "CSE", feeType: "Tuition", allocated: "", year: "2024-25" });
-    setShowAddFee(false);
   };
 
   const handleTimetableChange = (day, periodIdx, subject) => {
-    setTimetable(prev => ({ ...prev, [day]: prev[day].map((s, i) => i === periodIdx ? subject : s) }));
+    const newTimetable = { ...timetable, [day]: timetable[day].map((s, i) => i === periodIdx ? subject : s) };
+    const newConfig = { ...collegeConfig, timetable: newTimetable };
+    setCollegeConfig(newConfig);
+    saveCollegeConfig(newConfig);
     setEditTimetableCell(null);
   };
 
@@ -909,41 +877,30 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="table-wrap timetable-wrap">
-                  <table className="tt-table">
+                  <table className="timetable">
                     <thead>
                       <tr>
-                        <th style={{ width: 60 }}>Day</th>
-                        {periods.map(p => <th key={p}>{p}</th>)}
+                        <th style={{ width: 80 }}>Day</th>
+                        {PERIODS.map(p => <th key={p}>{p}</th>)}
                       </tr>
                     </thead>
                     <tbody>
-                      {days.map(day => (
+                      {DAYS.map(day => (
                         <tr key={day}>
-                          <td><div className="tt-day-label">{day}</div></td>
+                          <td className="day-label">{day}</td>
                           {(timetable[day] || []).map((subj, idx) => (
-                            <td key={idx} onClick={() => setEditTimetableCell({ day, idx })}>
+                            <td key={idx} onClick={() => setEditTimetableCell({ day, idx })} style={{
+                              background: subjectColors[subj] ? `${subjectColors[subj]}15` : "transparent",
+                              color: subjectColors[subj] || "rgba(255,255,255,0.15)",
+                              fontWeight: 700, fontSize: 11, cursor: "pointer",
+                              border: editTimetableCell?.day === day && editTimetableCell?.idx === idx ? "1px solid #fff" : "none"
+                            }}>
                               {editTimetableCell?.day === day && editTimetableCell?.idx === idx ? (
-                                <select
-                                  className="tt-period-select"
-                                  autoFocus
-                                  defaultValue={subj}
-                                  onChange={e => handleTimetableChange(day, idx, e.target.value)}
-                                  onBlur={() => setEditTimetableCell(null)}
-                                >
-                                  <option value="">-- Free --</option>
+                                <select autoFocus onBlur={() => setEditTimetableCell(null)} onChange={e => handleTimetableChange(day, idx, e.target.value)} value={subj} style={{ background: "#14141f", color: "#fff", border: "none", fontSize: 11, width: "100%" }}>
+                                  <option value="">Free</option>
                                   {subjects.map(s => <option key={s} value={s}>{s}</option>)}
                                 </select>
-                              ) : (
-                                <div
-                                  className="tt-cell"
-                                  style={{
-                                    background: subj ? `${subjectColors[subj]}22` : "transparent",
-                                    color: subj ? subjectColors[subj] : "rgba(255,255,255,0.1)",
-                                  }}
-                                >
-                                  {subj || "—"}
-                                </div>
-                              )}
+                              ) : (subj || "—")}
                             </td>
                           ))}
                         </tr>
@@ -1001,16 +958,22 @@ export default function AdminDashboard() {
               <FormInput label="Role" type="select" value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })} options={["STUDENT", "STAFF", "ADMIN"]} />
               <FormInput label="Department" type="select" value={newUser.dept} onChange={e => setNewUser({ ...newUser, dept: e.target.value })} options={["CSE", "ECE", "MECH", "CIVIL"]} />
             </div>
+            {newUser.role === "STUDENT" && (
+              <div className="form-row">
+                <FormInput label="Phone" value={newUser.phone} onChange={e => setNewUser({ ...newUser, phone: e.target.value })} placeholder="+91..." />
+                <FormInput label="DOB" value={newUser.dob} onChange={e => setNewUser({ ...newUser, dob: e.target.value })} placeholder="e.g. 12 March 2003" />
+              </div>
+            )}
             {newUser.role === "STAFF" && (
               <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#fff", marginBottom: 16 }}>
                 <input type="checkbox" checked={newUser.isCoe} onChange={e => setNewUser({ ...newUser, isCoe: e.target.checked })} />
                 Assign COE (Controller of Examinations) privileges
               </label>
             )}
-            <FormInput label="Password" type="password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} placeholder="Set initial password" />
+            <FormInput label="Password" type="password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} placeholder="Enter secure password" />
             <div className="modal-actions">
               <button className="btn-cancel" onClick={() => setShowAddUser(false)}>Cancel</button>
-              <button className="btn-submit" onClick={handleAddUser}>Add User</button>
+              <button className="btn-submit" onClick={handleAddUser}>Create User</button>
             </div>
           </Modal>
         )}
@@ -1027,6 +990,12 @@ export default function AdminDashboard() {
               <FormInput label="Role" type="select" value={editingUser.role} onChange={e => setEditingUser({ ...editingUser, role: e.target.value })} options={["STUDENT", "STAFF", "ADMIN"]} />
               <FormInput label="Department" type="select" value={editingUser.dept} onChange={e => setEditingUser({ ...editingUser, dept: e.target.value })} options={["CSE", "ECE", "MECH", "CIVIL"]} />
             </div>
+            {editingUser.role === "STUDENT" && (
+              <div className="form-row">
+                <FormInput label="Phone" value={editingUser.phone || ""} onChange={e => setEditingUser({ ...editingUser, phone: e.target.value })} placeholder="+91..." />
+                <FormInput label="DOB" value={editingUser.dob || ""} onChange={e => setEditingUser({ ...editingUser, dob: e.target.value })} placeholder="e.g. 12 March 2003" />
+              </div>
+            )}
             {editingUser.role === "STAFF" && (
               <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#fff", marginBottom: 16 }}>
                 <input type="checkbox" checked={editingUser.isCoe} onChange={e => setEditingUser({ ...editingUser, isCoe: e.target.checked })} />
