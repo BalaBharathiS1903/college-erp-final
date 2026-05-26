@@ -168,11 +168,11 @@ export default function AdminDashboard() {
   };
 
   const navItems = [
-    { id: "dashboard",    label: "Dashboard",       icon: "⬛" },
-    { id: "users",        label: "User Management", icon: "👥" },
-    { id: "fees",         label: "Fees Management", icon: "💰" },
-    { id: "timetable",    label: "Timetable",       icon: "📅" },
-    { id: "staff-alloc",  label: "Staff Allocation",icon: "👨‍🏫" },
+    { id: "dashboard",    label: "Dashboard",       icon: "D" },
+    { id: "users",        label: "User Management", icon: "U" },
+    { id: "fees",         label: "Fees Management", icon: "F" },
+    { id: "timetable",    label: "Timetable",       icon: "T" },
+    { id: "staff-alloc",  label: "Staff Allocation",icon: "A" },
   ];
 
   const filteredUsers = users.filter(u => {
@@ -304,16 +304,16 @@ export default function AdminDashboard() {
 
         .admin-root {
           display: flex; min-height: 100vh;
-          background: #0c0c14;
+          background: #f8fafc;
           font-family: 'DM Sans', sans-serif;
-          color: #fff;
+          color: #0f172a;
         }
 
         /* ── Sidebar ── */
         .sidebar {
           width: 240px; min-height: 100vh;
-          background: #0f0f1a;
-          border-right: 1px solid rgba(255,255,255,0.05);
+          background: #ffffff;
+          border-right: 1px solid #e2e8f0;
           display: flex; flex-direction: column;
           padding: 24px 0;
           transition: width 0.3s ease;
@@ -325,22 +325,23 @@ export default function AdminDashboard() {
         .sidebar-brand {
           display: flex; align-items: center; gap: 12px;
           padding: 0 20px 28px;
-          border-bottom: 1px solid rgba(255,255,255,0.05);
+          border-bottom: 1px solid #e2e8f0;
           margin-bottom: 16px;
           overflow: hidden;
         }
         .brand-icon {
           width: 36px; height: 36px; flex-shrink: 0;
-          background: linear-gradient(135deg, #e84545, #f5a623);
+          background: linear-gradient(135deg, #2563eb, #0ea5e9);
           border-radius: 10px;
           display: flex; align-items: center; justify-content: center; font-size: 18px;
+          color: #ffffff;
         }
         .brand-text { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; white-space: nowrap; }
 
         .nav-section-label {
           padding: 0 20px;
           font-size: 10px; font-weight: 600;
-          color: rgba(255,255,255,0.25);
+          color: #64748b;
           text-transform: uppercase; letter-spacing: 1.5px;
           margin: 8px 0 6px;
           white-space: nowrap; overflow: hidden;
@@ -352,22 +353,22 @@ export default function AdminDashboard() {
           border-radius: 10px; cursor: pointer;
           transition: all 0.2s;
           overflow: hidden; white-space: nowrap;
-          border: none; background: none; color: rgba(255,255,255,0.45);
+          border: none; background: none; color: #475569;
           font-family: 'DM Sans', sans-serif; font-size: 14px; width: calc(100% - 20px);
           text-align: left;
         }
-        .nav-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .nav-item:hover { background: #eff6ff; color: #1d4ed8; }
         .nav-item.active {
-          background: rgba(232,69,69,0.12);
-          color: #e84545;
-          border: 1px solid rgba(232,69,69,0.2);
+          background: #dbeafe;
+          color: #1d4ed8;
+          border: 1px solid #bfdbfe;
         }
         .nav-icon { font-size: 16px; flex-shrink: 0; }
         .nav-label { font-weight: 500; }
 
         .sidebar-footer {
           margin-top: auto; padding: 16px 20px;
-          border-top: 1px solid rgba(255,255,255,0.05);
+          border-top: 1px solid #e2e8f0;
           overflow: hidden;
         }
         .admin-tag {
@@ -375,13 +376,14 @@ export default function AdminDashboard() {
         }
         .admin-avatar {
           width: 32px; height: 32px; border-radius: 8px;
-          background: linear-gradient(135deg, #e84545, #f5a623);
+          background: linear-gradient(135deg, #2563eb, #0ea5e9);
           display: flex; align-items: center; justify-content: center; font-size: 14px;
           flex-shrink: 0;
+          color: #ffffff;
         }
         .admin-info { overflow: hidden; }
-        .admin-name { font-size: 13px; font-weight: 600; white-space: nowrap; }
-        .admin-role { font-size: 11px; color: rgba(255,255,255,0.35); }
+        .admin-name { font-size: 13px; font-weight: 600; white-space: nowrap; color: #0f172a; }
+        .admin-role { font-size: 11px; color: #64748b; }
 
         /* ── Main Content ── */
         .main {
@@ -390,26 +392,25 @@ export default function AdminDashboard() {
 
         .topbar {
           height: 60px;
-          border-bottom: 1px solid rgba(255,255,255,0.05);
+          border-bottom: 1px solid #e2e8f0;
           display: flex; align-items: center; justify-content: space-between;
           padding: 0 28px;
-          background: rgba(255,255,255,0.01);
+          background: #ffffff;
           flex-shrink: 0;
         }
         .topbar-left { display: flex; align-items: center; gap: 14px; }
         .menu-btn {
-          background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.06);
-          color: #888; width: 34px; height: 34px; border-radius: 8px;
+          background: #f8fafc; border: 1px solid #cbd5e1;
+          color: #475569; width: 34px; height: 34px; border-radius: 8px;
           cursor: pointer; font-size: 14px;
         }
         .page-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; }
 
         .topbar-right { display: flex; align-items: center; gap: 12px; }
         .topbar-badge {
-          background: rgba(232,69,69,0.15);
-          border: 1px solid rgba(232,69,69,0.3);
-          color: #e84545; padding: "4px 12px"; border-radius: 20px; font-size: 12px; font-weight: 600;
-          padding: 4px 12px;
+          background: #dbeafe;
+          border: 1px solid #bfdbfe;
+          color: #1d4ed8; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
         }
 
         .content-area { flex: 1; overflow-y: auto; padding: 28px; }
@@ -417,17 +418,17 @@ export default function AdminDashboard() {
         /* ── Stats Cards ── */
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
         .stat-card {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
           border-radius: 16px; padding: 20px;
           transition: transform 0.2s, border-color 0.2s;
         }
-        .stat-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.12); }
+        .stat-card:hover { transform: translateY(-2px); border-color: #bfdbfe; }
         .stat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
         .stat-icon { font-size: 22px; }
         .stat-val { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; }
-        .stat-label { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 6px; }
-        .stat-change { font-size: 11px; color: rgba(255,255,255,0.3); }
+        .stat-label { font-size: 12px; color: #64748b; margin-bottom: 6px; }
+        .stat-change { font-size: 11px; color: #64748b; }
 
         /* ── Section Header ── */
         .section-header {
@@ -448,14 +449,14 @@ export default function AdminDashboard() {
         .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(232,69,69,0.3); }
 
         .btn-ghost {
-          background: rgba(255,255,255,0.05);
-          border: 1px solid rgba(255,255,255,0.08);
-          color: rgba(255,255,255,0.6);
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          color: #475569;
           padding: 8px 14px; border-radius: 8px;
           font-family: 'DM Sans', sans-serif; font-size: 12px;
           cursor: pointer; transition: all 0.2s;
         }
-        .btn-ghost:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .btn-ghost:hover { background: #e2e8f0; color: #1d4ed8; }
 
         .btn-danger {
           background: rgba(232,69,69,0.12); border: 1px solid rgba(232,69,69,0.2);
@@ -467,51 +468,51 @@ export default function AdminDashboard() {
         /* ── Search & Filter Bar ── */
         .filter-bar { display: flex; gap: 10px; margin-bottom: 16px; }
         .search-input {
-          flex: 1; background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.07);
+          flex: 1; background: #ffffff;
+          border: 1px solid #cbd5e1;
           border-radius: 10px; padding: 9px 14px;
-          color: #fff; font-size: 13px;
+          color: #0f172a; font-size: 13px;
           font-family: 'DM Sans', sans-serif; outline: none;
         }
-        .search-input::placeholder { color: rgba(255,255,255,0.2); }
+        .search-input::placeholder { color: #94a3b8; }
         .filter-select {
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.07);
+          background: #ffffff;
+          border: 1px solid #cbd5e1;
           border-radius: 10px; padding: 9px 14px;
-          color: #fff; font-size: 13px; outline: none; cursor: pointer;
+          color: #0f172a; font-size: 13px; outline: none; cursor: pointer;
         }
-        .filter-select option { background: #14141f; }
+        .filter-select option { background: #ffffff; color: #0f172a; }
 
         /* ── Table ── */
         .table-wrap {
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
           border-radius: 16px; overflow: hidden;
         }
         table { width: 100%; border-collapse: collapse; }
         th {
           padding: 12px 16px; text-align: left;
           font-size: 11px; font-weight: 600;
-          color: rgba(255,255,255,0.35);
+          color: #64748b;
           text-transform: uppercase; letter-spacing: 1px;
-          border-bottom: 1px solid rgba(255,255,255,0.05);
-          background: rgba(255,255,255,0.02);
+          border-bottom: 1px solid #e2e8f0;
+          background: #f8fafc;
         }
-        td { padding: 13px 16px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        td { padding: 13px 16px; font-size: 13px; border-bottom: 1px solid #e2e8f0; }
         tr:last-child td { border-bottom: none; }
-        tr:hover td { background: rgba(255,255,255,0.02); }
+        tr:hover td { background: #f1f5f9; }
         .td-name { font-weight: 600; font-size: 14px; }
-        .td-meta { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+        .td-meta { font-size: 11px; color: #64748b; margin-top: 2px; }
 
         /* ── Timetable ── */
         .timetable-wrap { overflow-x: auto; }
         .tt-table { width: 100%; border-collapse: collapse; min-width: 700px; }
         .tt-table th { padding: 10px 12px; font-size: 11px; font-weight: 600;
-          color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px;
-          background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04);
+          color: #64748b; text-transform: uppercase; letter-spacing: 1px;
+          background: #f8fafc; border: 1px solid #e2e8f0;
         }
         .tt-table td {
-          padding: 0; border: 1px solid rgba(255,255,255,0.04);
+          padding: 0; border: 1px solid #e2e8f0;
           height: 52px; cursor: pointer; position: relative;
         }
         .tt-cell {
@@ -520,21 +521,21 @@ export default function AdminDashboard() {
           font-size: 11px; font-weight: 600;
           transition: filter 0.2s;
         }
-        .tt-cell:hover { filter: brightness(1.3); }
+        .tt-cell:hover { background: #eff6ff; }
         .tt-day-label {
           font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.6);
           padding: 0 14px; text-align: center;
         }
         .tt-period-select {
           position: absolute; inset: 0; z-index: 10;
-          background: #14141f; border: 1px solid rgba(255,255,255,0.15);
-          color: #fff; font-size: 12px; padding: 0 8px; outline: none;
+          background: #ffffff; border: 1px solid #cbd5e1;
+          color: #0f172a; font-size: 12px; padding: 0 8px; outline: none;
           cursor: pointer;
         }
 
         /* ── Fee Bar ── */
         .fee-bar-bg {
-          width: 100%; height: 5px; background: rgba(255,255,255,0.06);
+          width: 100%; height: 5px; background: #e2e8f0;
           border-radius: 3px; overflow: hidden; margin-top: 4px;
         }
         .fee-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
@@ -542,8 +543,8 @@ export default function AdminDashboard() {
         /* ── Staff Allocation ── */
         .alloc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
         .alloc-card {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
           border-radius: 14px; padding: 18px;
         }
         .alloc-subject { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 6px; }
@@ -564,8 +565,8 @@ export default function AdminDashboard() {
         }
         .btn-submit:hover { opacity: 0.9; transform: translateY(-1px); }
         .btn-cancel {
-          background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
-          color: rgba(255,255,255,0.6); padding: 11px 24px;
+          background: #f8fafc; border: 1px solid #e2e8f0;
+          color: #475569; padding: 11px 24px;
           border-radius: 10px; font-size: 14px; cursor: pointer;
         }
 

@@ -64,11 +64,11 @@ const initSem = (students, subjects) => {
 };
 
 const NAV = [
-  { id: "dashboard",  icon: "⬡", label: "Dashboard"       },
-  { id: "attendance", icon: "✓", label: "Attendance"       },
-  { id: "cia",        icon: "✎", label: "CIA Marks"        },
-  { id: "semester",   icon: "⊞", label: "COE Mark Entry"   },
-  { id: "students",   icon: "◎", label: "My Students"      },
+  { id: "dashboard",  icon: "D", label: "Dashboard"       },
+  { id: "attendance", icon: "A", label: "Attendance"       },
+  { id: "cia",        icon: "C", label: "CIA Marks"        },
+  { id: "semester",   icon: "S", label: "COE Mark Entry"   },
+  { id: "students",   icon: "M", label: "My Students"      },
 ];
 
 const SUBJ_COLORS = ["#f59e0b","#10b981","#4a90e2","#c084fc"];
@@ -190,59 +190,59 @@ export default function StaffDashboard() {
         ::-webkit-scrollbar{width:4px;height:4px}
         ::-webkit-scrollbar-thumb{background:rgba(245,158,11,.2);border-radius:4px}
 
-        .sr{display:flex;min-height:100vh;background:#0d1117;font-family:'Outfit',sans-serif;color:#e6edf3}
+        .sr{display:flex;min-height:100vh;background:#f8fafc;font-family:'Outfit',sans-serif;color:#0f172a}
 
         /* ── Sidebar ── */
-        .sb{width:220px;min-height:100vh;flex-shrink:0;background:#010409;
-          border-right:1px solid rgba(245,158,11,.07);
+        .sb{width:220px;min-height:100vh;flex-shrink:0;background:#ffffff;
+          border-right:1px solid #e2e8f0;
           display:flex;flex-direction:column;padding:20px 0;transition:width .3s}
         .sb.cl{width:58px}
         .sb-brand{display:flex;align-items:center;gap:10px;padding:0 16px 22px;
-          border-bottom:1px solid rgba(255,255,255,.04);overflow:hidden}
+          border-bottom:1px solid #e2e8f0;overflow:hidden}
         .sb-logo{width:34px;height:34px;flex-shrink:0;
-          background:linear-gradient(135deg,#f59e0b,#10b981);
+          background:linear-gradient(135deg,#2563eb,#0ea5e9);
           border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px}
-        .sb-title{font-size:14px;font-weight:700;color:#f59e0b;white-space:nowrap}
-        .sb-sub{font-size:10px;color:rgba(255,255,255,.3)}
-        .sb-sec{font-size:9px;font-weight:600;color:rgba(255,255,255,.2);text-transform:uppercase;
+        .sb-title{font-size:14px;font-weight:700;color:#0f172a;white-space:nowrap}
+        .sb-sub{font-size:10px;color:#64748b}
+        .sb-sec{font-size:9px;font-weight:600;color:#64748b;text-transform:uppercase;
           letter-spacing:1.5px;padding:14px 18px 6px;overflow:hidden;white-space:nowrap}
         .sb-item{display:flex;align-items:center;gap:11px;padding:9px 16px;margin:1px 8px;
           border-radius:8px;cursor:pointer;overflow:hidden;white-space:nowrap;
-          border:none;background:none;color:rgba(255,255,255,.38);
+          border:none;background:none;color:#475569;
           font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;
           width:calc(100% - 16px);text-align:left;transition:all .2s}
-        .sb-item:hover{background:rgba(255,255,255,.04);color:#e6edf3}
-        .sb-item.on{background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.2)}
+        .sb-item:hover{background:#eff6ff;color:#1d4ed8}
+        .sb-item.on{background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe}
         .sb-icon{font-size:15px;flex-shrink:0}
-        .sb-foot{margin-top:auto;padding:14px 16px;border-top:1px solid rgba(255,255,255,.04)}
+        .sb-foot{margin-top:auto;padding:14px 16px;border-top:1px solid #e2e8f0}
         .av{width:30px;height:30px;border-radius:8px;flex-shrink:0;
-          background:linear-gradient(135deg,#f59e0b,#10b981);
+          background:linear-gradient(135deg,#2563eb,#0ea5e9);
           display:flex;align-items:center;justify-content:center;font-size:14px}
         .av-name{font-size:12px;font-weight:600;white-space:nowrap}
-        .av-role{font-size:10px;color:rgba(255,255,255,.3)}
+        .av-role{font-size:10px;color:#64748b}
 
         /* ── Main ── */
         .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-        .topbar{height:54px;border-bottom:1px solid rgba(255,255,255,.05);
+        .topbar{height:54px;border-bottom:1px solid #e2e8f0;
           display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0;
-          background:rgba(1,4,9,.7);backdrop-filter:blur(10px)}
-        .menu-btn{width:30px;height:30px;border-radius:7px;background:rgba(255,255,255,.04);
-          border:1px solid rgba(255,255,255,.06);color:#888;cursor:pointer;font-size:13px}
+          background:#ffffff}
+        .menu-btn{width:30px;height:30px;border-radius:7px;background:#f8fafc;
+          border:1px solid #e2e8f0;color:#475569;cursor:pointer;font-size:13px}
         .pg-title{font-size:16px;font-weight:700}
-        .staff-chip{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);
-          color:#f59e0b;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px}
+        .staff-chip{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);
+          color:#1d4ed8;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px}
 
         .content{flex:1;overflow-y:auto;padding:24px}
 
         /* ── Stat cards ── */
         .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
-        .mc{background:#010409;border:1px solid rgba(255,255,255,.06);border-radius:14px;
+        .mc{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;
           padding:18px;transition:border-color .2s}
-        .mc:hover{border-color:rgba(245,158,11,.3)}
+        .mc:hover{border-color:#bfdbfe}
         .mc-top{display:flex;justify-content:space-between;align-items:flex-start}
-        .mc-lbl{font-size:11px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+        .mc-lbl{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
         .mc-val{font-size:26px;font-weight:800;font-family:'Fira Code',monospace}
-        .mc-sub{font-size:11px;color:rgba(255,255,255,.25);margin-top:4px}
+        .mc-sub{font-size:11px;color:#64748b;margin-top:4px}
 
         /* ── Section ── */
         .sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
@@ -258,32 +258,32 @@ export default function StaffDashboard() {
           padding:9px 18px;border-radius:9px;font-weight:700;font-size:13px;
           cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
         .btn-green:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(16,185,129,.3)}
-        .btn-ghost{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-          color:rgba(255,255,255,.5);padding:7px 14px;border-radius:8px;
+        .btn-ghost{background:#f8fafc;border:1px solid #e2e8f0;
+          color:#475569;padding:7px 14px;border-radius:8px;
           font-size:12px;cursor:pointer;transition:all .2s}
-        .btn-ghost:hover{background:rgba(255,255,255,.07);color:#fff}
+        .btn-ghost:hover{background:#e2e8f0;color:#1d4ed8}
 
         /* ── Controls ── */
         .ctrl-row{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
-        .sel,date-in{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-          border-radius:9px;padding:8px 14px;color:#e6edf3;font-size:13px;outline:none;
+        .sel,date-in{background:#ffffff;border:1px solid #cbd5e1;
+          border-radius:9px;padding:8px 14px;color:#0f172a;font-size:13px;outline:none;
           font-family:'Outfit',sans-serif;cursor:pointer}
-        .sel option{background:#010409}
-        .date-in{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-          border-radius:9px;padding:8px 14px;color:#e6edf3;font-size:13px;outline:none}
+        .sel option{background:#ffffff;color:#0f172a}
+        .date-in{background:#ffffff;border:1px solid #cbd5e1;
+          border-radius:9px;padding:8px 14px;color:#0f172a;font-size:13px;outline:none}
         .date-in::-webkit-calendar-picker-indicator{filter:invert(.6)}
 
         /* ── Table base ── */
-        .tbl-wrap{background:#010409;border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden}
+        .tbl-wrap{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden}
         .tbl{width:100%;border-collapse:collapse}
         .tbl th{padding:10px 14px;text-align:center;font-size:10px;font-weight:700;
-          color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1px;
-          background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.04)}
+          color:#64748b;text-transform:uppercase;letter-spacing:1px;
+          background:#f8fafc;border-bottom:1px solid #e2e8f0}
         .tbl th.lft{text-align:left}
-        .tbl td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;font-size:13px}
+        .tbl td{padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:center;font-size:13px}
         .tbl td.lft{text-align:left}
         .tbl tr:last-child td{border-bottom:none}
-        .tbl tr:hover td{background:rgba(255,255,255,.013)}
+        .tbl tr:hover td{background:#f1f5f9}
         .s-name{font-size:13px;font-weight:600}
         .s-reg{font-size:11px;color:rgba(255,255,255,.3);font-family:'Fira Code',monospace;margin-top:1px}
 
@@ -343,9 +343,9 @@ export default function StaffDashboard() {
 
         /* ── Subject mini cards ── */
         .subj-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px}
-        .subj-card{background:#010409;border:1px solid rgba(255,255,255,.06);
+        .subj-card{background:#ffffff;border:1px solid #e2e8f0;
           border-radius:13px;padding:16px;transition:border-color .2s}
-        .subj-card:hover{border-color:rgba(255,255,255,.12)}
+        .subj-card:hover{border-color:#bfdbfe}
 
         @media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.subj-grid{grid-template-columns:1fr}.sb{display:none}}
       `}</style>
@@ -365,18 +365,18 @@ export default function StaffDashboard() {
             </button>
           ))}
           <div className="sb-foot">
-            <div style={{ display:"flex", alignItems:"center", gap:10, overflow:"hidden" }}>
-              <div className="av">👤</div>
+              <div style={{ display:"flex", alignItems:"center", gap:10, overflow:"hidden" }}>
+              <div className="av">{user?.name ? user.name.charAt(0) : 'S'}</div>
               {sidebarOpen && <div><div className="av-name">{user?.name || "Staff"}</div><div className="av-role">{user?.username} {isCoe && <span style={{ color:"#a855f7", fontWeight:800, fontSize:9 }}>(COE)</span>}</div></div>}
             </div>
-            {sidebarOpen && (
+              {sidebarOpen && (
               <button onClick={handleLogout} style={{
                 marginTop:12, width:"100%", background:"rgba(248,113,113,0.1)",
                 border:"1px solid rgba(248,113,113,0.2)", color:"#f87171",
                 padding:"8px 0", borderRadius:8, cursor:"pointer",
                 fontFamily:"'Outfit',sans-serif", fontSize:13, fontWeight:600,
                 transition:"all 0.2s",
-              }}>🚪 Logout</button>
+              }}>Logout</button>
             )}
           </div>
         </aside>
@@ -386,7 +386,7 @@ export default function StaffDashboard() {
           {/* Topbar */}
           <div className="topbar">
             <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-              <button className="menu-btn" onClick={() => setSidebarOpen(o => !o)}>☰</button>
+              <button className="menu-btn" onClick={() => setSidebarOpen(o => !o)}>Menu</button>
               <span className="pg-title">{NAV.find(n => n.id === tab)?.label}</span>
             </div>
             <div style={{ display:"flex", alignItems:"center", gap:12 }}>
@@ -403,16 +403,16 @@ export default function StaffDashboard() {
             {tab === "dashboard" && (<>
               <div className="g4">
                 {[
-                  { lbl:"My Subjects",   val:SUBJECTS.length,  icon:"📘", clr:"#f59e0b", sub:"Semester 6" },
-                  { lbl:"My Students",   val:STUDENTS.length,  icon:"🎓", clr:"#10b981", sub:"CSE Batch"  },
-                  { lbl:"Today's Slots", val:PERIODS.length,   icon:"🕐", clr:"#c084fc", sub:"Periods"    },
+                  { lbl:"My Subjects",   val:SUBJECTS.length,  icon:"", clr:"#f59e0b", sub:"Semester 6" },
+                  { lbl:"My Students",   val:STUDENTS.length,  icon:"", clr:"#10b981", sub:"CSE Batch"  },
+                  { lbl:"Today's Slots", val:PERIODS.length,   icon:"", clr:"#c084fc", sub:"Periods"    },
                   { lbl:"Avg Attendance",val:`${attStats.length ? Math.round(attStats.reduce((s,a)=>s+a.pct,0)/attStats.length) : 0}%`,
-                    icon:"📊", clr:"#4ade80", sub:"Overall" },
+                    icon:"", clr:"#4ade80", sub:"Overall" },
                 ].map(c => (
                   <div className="mc" key={c.lbl}>
                     <div className="mc-top">
                       <div><div className="mc-lbl">{c.lbl}</div><div className="mc-val" style={{ color:c.clr }}>{c.val}</div></div>
-                      <div style={{ fontSize:22 }}>{c.icon}</div>
+                      <div style={{ fontSize:22 }}></div>
                     </div>
                     <div className="mc-sub">{c.sub}</div>
                   </div>
@@ -429,7 +429,7 @@ export default function StaffDashboard() {
                         <div style={{ fontSize:15, fontWeight:700, color:SUBJ_COLORS[i], marginBottom:3 }}>{s.name}</div>
                         <div style={{ fontSize:11, color:"rgba(255,255,255,.3)" }}>{s.code} · {s.credits} Credits</div>
                       </div>
-                      <span style={{ fontSize:20 }}>📖</span>
+                      <span style={{ fontSize:20 }}></span>
                     </div>
                     <div style={{ display:"flex", gap:8, marginTop:12, flexWrap:"wrap" }}>
                       <button className="btn-ghost" style={{ fontSize:11 }} onClick={() => { setSelSubject(s.id); setTab("attendance"); }}>Mark Attendance</button>

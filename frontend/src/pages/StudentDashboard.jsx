@@ -37,11 +37,11 @@ function calcGPA(subs) {
 }
 
 const NAV = [
-  { id: "dashboard", icon: "🏠", label: "Dashboard" },
-  { id: "marks",     icon: "📋", label: "Mark Statement" },
-  { id: "attendance",icon: "✅", label: "Attendance" },
-  { id: "fees",      icon: "💳", label: "Fee Payment" },
-  { id: "profile",   icon: "👤", label: "My Profile" },
+  { id: "dashboard", icon: "D", label: "Dashboard" },
+  { id: "marks",     icon: "M", label: "Mark Statement" },
+  { id: "attendance",icon: "A", label: "Attendance" },
+  { id: "fees",      icon: "F", label: "Fee Payment" },
+  { id: "profile",   icon: "P", label: "My Profile" },
 ];
 
 const DEFAULT_STUDENT = {
@@ -163,18 +163,18 @@ export default function StudentDashboard() {
         ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#14b8a630;border-radius:4px}
         .sd-root{display:flex;min-height:100vh;background:#f8fafc;font-family:'Plus Jakarta Sans',sans-serif;color:#0f172a}
         /* sidebar */
-        .sd-sb{width:240px;min-height:100vh;background:#0f172a;color:#fff;display:flex;flex-direction:column;flex-shrink:0;transition:width .25s}
+        .sd-sb{width:240px;min-height:100vh;background:#ffffff;color:#0f172a;display:flex;flex-direction:column;flex-shrink:0;transition:width .25s}
         .sd-sb.cl{width:64px}
-        .sd-sb-brand{display:flex;align-items:center;gap:12px;padding:24px 20px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
+        .sd-sb-brand{display:flex;align-items:center;gap:12px;padding:24px 20px 18px;border-bottom:1px solid #e2e8f0}
         .sd-sb-logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#14b8a6,#0ea5e9);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px}
-        .sd-sb-title{font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden}
-        .sd-sb-sub{font-size:10px;color:rgba(255,255,255,.4);font-weight:500}
+        .sd-sb-title{font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;color:#0f172a}
+        .sd-sb-sub{font-size:10px;color:#64748b;font-weight:500}
         .sd-nav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:3px}
-        .sd-nav-btn{display:flex;align-items:center;gap:12px;padding:10px 12px;border:none;border-radius:10px;background:transparent;color:rgba(255,255,255,.5);cursor:pointer;font-size:13px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;width:100%;text-align:left;transition:.18s;white-space:nowrap;overflow:hidden}
-        .sd-nav-btn:hover{color:#fff;background:rgba(255,255,255,.06)}
-        .sd-nav-btn.on{color:#fff;background:linear-gradient(135deg,rgba(20,184,166,.2),rgba(14,165,233,.15));border:1px solid rgba(20,184,166,.3)}
+        .sd-nav-btn{display:flex;align-items:center;gap:12px;padding:10px 12px;border:none;border-radius:10px;background:transparent;color:#475569;cursor:pointer;font-size:13px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;width:100%;text-align:left;transition:.18s;white-space:nowrap;overflow:hidden}
+        .sd-nav-btn:hover{color:#1d4ed8;background:#eff6ff}
+        .sd-nav-btn.on{color:#1d4ed8;background:#dbeafe;border:1px solid #bfdbfe}
         .sd-nav-icon{font-size:17px;flex-shrink:0}
-        .sd-sb-foot{padding:16px 12px;border-top:1px solid rgba(255,255,255,.07)}
+        .sd-sb-foot{padding:16px 12px;border-top:1px solid #e2e8f0}
         /* topbar */
         .sd-topbar{height:58px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
         .sd-menu-btn{width:32px;height:32px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;font-size:14px;color:#64748b}
@@ -227,9 +227,9 @@ export default function StudentDashboard() {
         .sd-toast{position:fixed;bottom:28px;right:28px;background:linear-gradient(135deg,#14b8a6,#0ea5e9);color:#fff;padding:12px 22px;border-radius:12px;font-weight:700;font-size:14px;z-index:2000;animation:sdFadeUp .3s ease}
         @keyframes sdFadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
         /* gpa banner */
-        .sd-gpa-banner{background:#0f172a;border-radius:14px;padding:20px 24px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;color:#fff}
+        .sd-gpa-banner{background:#eef2ff;border-radius:14px;padding:20px 24px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;color:#0f172a}
         /* empty state */
-        .sd-empty{text-align:center;padding:60px 20px;color:#94a3b8}
+        .sd-empty{text-align:center;padding:60px 20px;color:#64748b}
         .sd-empty-icon{font-size:40px;margin-bottom:12px}
         /* mk */
         .mk{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:14px}
@@ -242,7 +242,7 @@ export default function StudentDashboard() {
         {/* ── Sidebar ── */}
         <aside className={`sd-sb ${sidebar ? "" : "cl"}`}>
           <div className="sd-sb-brand">
-            <div className="sd-sb-logo">🎓</div>
+            <div className="sd-sb-logo">S</div>
             {sidebar && <div><div className="sd-sb-title">BHC ERP</div><div className="sd-sb-sub">Student Portal</div></div>}
           </div>
           <nav className="sd-nav">
@@ -297,7 +297,7 @@ export default function StudentDashboard() {
                 <button className="btn-teal" onClick={() => setTab("marks")}>View Marks →</button>
               </div>
               {semData.subjects.length === 0 ? (
-                <div className="sd-empty"><div className="sd-empty-icon">📚</div><div style={{ fontWeight:700 }}>No subjects found for Semester {STUDENT.sem}</div><div style={{ fontSize:12, marginTop:4 }}>Check with admin if subjects have been configured.</div></div>
+                <div className="sd-empty"><div className="sd-empty-icon">No subjects</div><div style={{ fontWeight:700 }}>No subjects found for Semester {STUDENT.sem}</div><div style={{ fontSize:12, marginTop:4 }}>Check with admin if subjects have been configured.</div></div>
               ) : (
                 <div className="sd-tbl-wrap">
                   <table className="sd-tbl">
@@ -350,7 +350,7 @@ export default function StudentDashboard() {
                 </div>
               )}
               {semData.subjects.length === 0 ? (
-                <div className="sd-empty"><div className="sd-empty-icon">📋</div><div style={{ fontWeight:700 }}>No marks yet for Semester {viewSem}</div></div>
+                <div className="sd-empty"><div className="sd-empty-icon">No marks</div><div style={{ fontWeight:700 }}>No marks yet for Semester {viewSem}</div></div>
               ) : (
                 <div className="sd-tbl-wrap" style={{ overflowX:"auto" }}>
                   <table className="sd-tbl" style={{ minWidth:700 }}>
@@ -402,7 +402,7 @@ export default function StudentDashboard() {
             {tab === "attendance" && (<>
               <div className="sd-sec-hd"><div><div className="sd-sec-title">Attendance</div><div className="sd-sec-sub">Current Semester {STUDENT.sem || 6}</div></div></div>
               {allSubjects.filter(s => Number(s.sem) === Number(STUDENT.sem || 6)).length === 0 ? (
-                <div className="sd-empty"><div className="sd-empty-icon">📊</div><div style={{ fontWeight:700 }}>No subjects configured for this semester</div></div>
+                <div className="sd-empty"><div className="sd-empty-icon">No data</div><div style={{ fontWeight:700 }}>No subjects configured for this semester</div></div>
               ) : (
                 <div className="sd-tbl-wrap">
                   <table className="sd-tbl">
@@ -445,7 +445,7 @@ export default function StudentDashboard() {
                 ))}
               </div>
               {filteredFees.length === 0 ? (
-                <div className="sd-empty"><div className="sd-empty-icon">💳</div><div style={{ fontWeight:700 }}>No fee records for {feeYear}</div><div style={{ fontSize:12, marginTop:4 }}>Contact Admin to allocate fees.</div></div>
+                <div className="sd-empty"><div className="sd-empty-icon">No fees</div><div style={{ fontWeight:700 }}>No fee records for {feeYear}</div><div style={{ fontSize:12, marginTop:4 }}>Contact Admin to allocate fees.</div></div>
               ) : filteredFees.map(f => {
                 const bal = f.allocated - f.paid;
                 const pct = Math.round((f.paid / f.allocated) * 100);
@@ -476,7 +476,7 @@ export default function StudentDashboard() {
                             <div><div style={{ fontSize:12, fontWeight:700 }}>{r.no}</div><div style={{ fontSize:10, color:"#94a3b8" }}>{r.date} · {r.mode}</div></div>
                             <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                               <span style={{ fontFamily:"'JetBrains Mono',monospace", fontWeight:700, color:"#22c55e", fontSize:13 }}>₹{r.amount.toLocaleString("en-IN")}</span>
-                              <button className="btn-outline" style={{ padding:"4px 10px", fontSize:11 }} onClick={() => downloadReceiptPDF(f, r)}>⬇ Receipt</button>
+                              <button className="btn-outline" style={{ padding:"4px 10px", fontSize:11 }} onClick={() => downloadReceiptPDF(f, r)}>Download receipt</button>
                             </div>
                           </div>
                         ))}
@@ -492,7 +492,7 @@ export default function StudentDashboard() {
               <div className="sd-sec-hd"><div className="sd-sec-title">My Profile</div></div>
               <div style={{ background:"#fff", border:"1px solid #e8f4f3", borderRadius:16, padding:24, boxShadow:"0 2px 8px rgba(0,0,0,.04)", marginBottom:20 }}>
                 <div style={{ display:"flex", gap:16, alignItems:"center", marginBottom:20 }}>
-                  <div style={{ width:60, height:60, borderRadius:14, background:"linear-gradient(135deg,#14b8a6,#0ea5e9)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:28 }}>🎓</div>
+                  <div style={{ width:60, height:60, borderRadius:14, background:"linear-gradient(135deg,#14b8a6,#0ea5e9)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:28, color:"#fff" }}>S</div>
                   <div>
                     <div style={{ fontSize:20, fontWeight:800 }}>{STUDENT.name}</div>
                     <div style={{ fontSize:13, color:"#94a3b8", marginTop:2 }}>{STUDENT.dept} · Sem {STUDENT.sem}</div>

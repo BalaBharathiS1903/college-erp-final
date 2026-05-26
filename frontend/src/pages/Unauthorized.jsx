@@ -19,7 +19,7 @@ export default function Unauthorized() {
 
         .unauth-root {
           min-height: 100vh;
-          background: #0a0a0f;
+          background: #f8fafc;
           display: flex; align-items: center; justify-content: center;
           font-family: 'DM Sans', sans-serif;
           position: relative; overflow: hidden;
@@ -33,13 +33,13 @@ export default function Unauthorized() {
         }
         .card {
           position: relative; z-index: 1;
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.07);
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
           border-radius: 24px; padding: 56px 48px;
           text-align: center; max-width: 420px; width: 90%;
           backdrop-filter: blur(20px);
         }
-        .icon { font-size: 64px; margin-bottom: 20px; }
+        .icon { font-size: 64px; margin-bottom: 20px; color: #ef4444; }
         .code {
           font-family: 'Syne', sans-serif;
           font-size: 72px; font-weight: 800;
@@ -72,7 +72,7 @@ export default function Unauthorized() {
       <div className="unauth-root">
         <div className="bg-grid" />
         <div className="card">
-          <div className="icon">🚫</div>
+          <div className="icon">Access Denied</div>
           <div className="code">403</div>
           <div className="title">Access Denied</div>
           <p className="desc">
