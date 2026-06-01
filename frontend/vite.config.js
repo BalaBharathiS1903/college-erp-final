@@ -8,9 +8,9 @@ export default defineConfig({
     // Proxy API calls to Spring Boot backend during development
     proxy: {
       "/api": {
-        target: "http://localhost:8080",
+        target: "https://bhc-erp-backend.onrender.com",
         changeOrigin: true,
-        secure: false,
+        secure: true,
       },
     },
   },
