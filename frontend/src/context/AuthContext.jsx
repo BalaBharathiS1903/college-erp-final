@@ -4,6 +4,7 @@ import { validateLogin } from "../utils/userStore";
 const AuthContext = createContext(null);
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080";
+const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || "10000", 10); // Configurable timeout
 
 // Allowlist of trusted origins — prevents SSRF (CWE-918)
 const ALLOWED_ORIGINS = (() => {
@@ -49,7 +50,7 @@ export function AuthProvider({ children }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, role }),
-        signal: AbortSignal.timeout(3000),
+        signal: AbortSignal.timeout(API_TIMEOUT),
       });
 
       if (res.ok) {
@@ -67,9 +68,23 @@ export function AuthProvider({ children }) {
       throw new Error(msg);
 
     } catch (err) {
-      if (err.name === "AbortError" || err.message === "Failed to fetch" || err.name === "TypeError") {
+      // Handle timeout and network errors with fallback to local validation
+      if (err.name === "TimeoutError" || err.name === "AbortError") {
+        console.warn("Backend connection timeout - falling back to local authentication");
         const found = validateLogin(username, password, role);
-        if (!found) throw new Error("Invalid username or password.");
+        if (!found) throw new Error("Backend unavailable. Invalid credentials for offline mode.");
+        const mockToken = `local_token_${Date.now()}`;
+        localStorage.setItem("erp_token",    mockToken);
+        localStorage.setItem("erp_role",     found.role);
+        localStorage.setItem("erp_username", found.username);
+        localStorage.setItem("erp_name",     found.name);
+        setUser({ token: mockToken, role: found.role, username: found.username, name: found.name });
+        return found.role;
+      }
+      if (err.message === "Failed to fetch" || err.name === "TypeError") {
+        console.warn("Backend connection failed - falling back to local authentication");
+        const found = validateLogin(username, password, role);
+        if (!found) throw new Error("Backend unavailable. Invalid credentials for offline mode.");
         const mockToken = `local_token_${Date.now()}`;
         localStorage.setItem("erp_token",    mockToken);
         localStorage.setItem("erp_role",     found.role);
