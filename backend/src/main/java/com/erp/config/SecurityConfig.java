@@ -4,10 +4,13 @@ import com.erp.security.JwtAuthFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import com.erp.repository.UserRepository;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -40,6 +43,18 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService(UserRepository userRepo) {
+        return username -> userRepo.findByUsername(username)
+            .map(u -> org.springframework.security.core.userdetails.User
+                .withUsername(u.getUsername())
+                .password(u.getPasswordHash())
+                .roles(u.getRole().name())
+                .disabled(!u.isActive())
+                .build())
+            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 
     @Bean

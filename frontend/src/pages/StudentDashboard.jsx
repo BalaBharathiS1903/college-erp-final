@@ -5,7 +5,7 @@ import { loadStudentFees, saveStudentFees } from "../utils/feeStore";
 import { loadAllUsers } from "../utils/userStore";
 import { loadCollegeConfig } from "../utils/collegeStore";
 import { loadCIAMarks, loadSemMarks } from "../utils/staffStore";
-import { FiLogOut, FiMenu, FiSearch } from 'react-icons/fi';
+import { FiLogOut, FiMenu } from 'react-icons/fi';
 
 /* ─── helpers ─────────────────────────────────────────────── */
 function grade(v) {
@@ -331,7 +331,7 @@ export default function StudentDashboard() {
             {tab === "marks" && (<>
               <div className="sd-sec-hd">
                 <div><div className="sd-sec-title">Mark Statement</div><div className="sd-sec-sub">Semester-wise grades</div></div>
-                {semData.subjects.length > 0 && <button className="btn-teal" onClick={downloadMarksPDF}>⬇ PDF</button>}
+                {semData.subjects.length > 0 && <button className="btn-teal" onClick={downloadMarksPDF}>Download PDF</button>}
               </div>
               <div className="sd-sem-tabs">
                 {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
@@ -426,7 +426,7 @@ export default function StudentDashboard() {
                 </div>
               )}
               <div style={{ marginTop:18, background:"#fff8f0", border:"1px solid #fed7aa", borderRadius:12, padding:"12px 16px", fontSize:13, color:"#c2410c" }}>
-                ℹ️ Detailed hour-by-hour attendance is recorded by staff in the Staff Portal. Contact your staff for attendance details.
+                Note: Detailed hour-by-hour attendance is recorded by staff in the Staff Portal. Contact your staff for attendance details.
               </div>
             </>)}
 
@@ -550,7 +550,7 @@ export default function StudentDashboard() {
               </div>
               <div style={{ display:"flex", gap:10 }}>
                 <button style={{ flex:1, padding:11, borderRadius:10, border:"1.5px solid #e2e8f0", background:"#fff", color:"#64748b", fontSize:13, fontWeight:600, cursor:"pointer" }} onClick={() => setPayModal(null)}>Cancel</button>
-                <button style={{ flex:2, padding:11, borderRadius:10, border:"none", background:"linear-gradient(135deg,#22c55e,#16a34a)", color:"#fff", fontSize:14, fontWeight:700, cursor:"pointer" }} onClick={handlePay}>Confirm Payment ✓</button>
+                <button style={{ flex:2, padding:11, borderRadius:10, border:"none", background:"linear-gradient(135deg,#22c55e,#16a34a)", color:"#fff", fontSize:14, fontWeight:700, cursor:"pointer" }} onClick={handlePay}>Confirm Payment</button>
               </div>
             </div>
           </div>

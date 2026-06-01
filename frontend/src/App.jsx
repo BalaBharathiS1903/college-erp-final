@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -13,7 +12,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
 // ── Clear stale session data only (preserve erp_users) ──────────
-const APP_VERSION = "v3_1";
+const APP_VERSION = "v3_2";
 if (localStorage.getItem("erp_app_version") !== APP_VERSION) {
   ["erp_fees", "erp_staff_sessions", "erp_token", "erp_role", "erp_username", "erp_name"].forEach(k => localStorage.removeItem(k));
   localStorage.setItem("erp_app_version", APP_VERSION);

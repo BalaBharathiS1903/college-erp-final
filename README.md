@@ -37,6 +37,18 @@
 - **Java** 17+ ([Download](https://adoptium.net/))
 - **MySQL** 8.0+ ([Download](https://dev.mysql.com/downloads/))
 
+## Build & Run
+ - Java 17 (LTS) — set `JAVA_HOME` to a JDK 17 installation before building the backend.
+  - Example (PowerShell):
+
+    ```powershell
+    $env:JAVA_HOME = 'C:\Program Files\Java\jdk-17'
+    $env:Path = "$env:JAVA_HOME\bin;" + $env:Path
+    cd backend
+    apache-maven-3.9.6\bin\mvn.cmd -DskipTests package
+    ```
+
+  - Note: The project requires Java 17 for compilation. If you have a newer JDK (for example Java 25) on your PATH, build will fail due to Lombok/javac internal changes. Install JDK 17 and point `JAVA_HOME` to it.
 ### 5-Minute Setup
 
 ```powershell

@@ -4,7 +4,7 @@ import appLogo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { loadAllUsers } from "../utils/userStore";
 import { loadCollegeConfig } from "../utils/collegeStore";
-import { FiLogOut, FiMenu, FiSearch, FiAlertTriangle } from 'react-icons/fi';
+import { FiAlertTriangle } from 'react-icons/fi';
 import { FaSave } from 'react-icons/fa';
 import { 
   loadAttendance, saveAttendance as storeAttendance, 
@@ -18,8 +18,6 @@ import {
 const getCollegeSubjects = () => loadCollegeConfig().subjects;
 
 // ─── Students are now dynamic ───────────────────────────────
-const getStudents = () => loadAllUsers().filter(u => u.role === "STUDENT");
-
 const PERIODS = [
   { id: 1, label: "P1", time: "9:00–10:00"  },
   { id: 2, label: "P2", time: "10:00–11:00" },
@@ -102,28 +100,28 @@ export default function StaffDashboard() {
 
   // Sync Attendance from store
   useEffect(() => {
+    const students = allUsers.filter(u => u.role === "STUDENT");
     const saved = loadAttendance(selSubject, selDate);
     if (saved) {
       setAttendance(saved);
     } else {
-      setAttendance(initAttendance(STUDENTS));
+      setAttendance(initAttendance(students));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selSubject, selDate, STUDENTS.length]);
+  }, [selSubject, selDate, allUsers]);
 
   // Sync CIA from store
   useEffect(() => {
     const saved = loadCIAMarks(ciaSubject);
-    if (saved) setCiaMarks(prev => ({ ...prev, ...Object.fromEntries(STUDENTS.map(s => [s.id, { ...prev[s.id], [ciaSubject]: saved[s.id] || { cia1: "", cia2: "", cia3: "" } }])) }));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ciaSubject, STUDENTS.length]);
+    const students = allUsers.filter(u => u.role === "STUDENT");
+    if (saved) setCiaMarks(prev => ({ ...prev, ...Object.fromEntries(students.map(s => [s.id, { ...prev[s.id], [ciaSubject]: saved[s.id] || { cia1: "", cia2: "", cia3: "" } }])) }));
+  }, [ciaSubject, allUsers]);
 
   // Sync SEM from store
   useEffect(() => {
     const saved = loadSemMarks(semSubject);
-    if (saved) setSemMarks(prev => ({ ...prev, ...Object.fromEntries(STUDENTS.map(s => [s.id, { ...prev[s.id], [semSubject]: saved[s.id] || "" }])) }));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [semSubject, STUDENTS.length]);
+    const students = allUsers.filter(u => u.role === "STUDENT");
+    if (saved) setSemMarks(prev => ({ ...prev, ...Object.fromEntries(students.map(s => [s.id, { ...prev[s.id], [semSubject]: saved[s.id] || "" }])) }));
+  }, [semSubject, allUsers]);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -189,7 +187,6 @@ export default function StaffDashboard() {
   });
 
   const ciaSubjName = SUBJECTS.find(s => s.id === ciaSubject)?.name || "";
-  const semSubjName = SUBJECTS.find(s => s.id === semSubject)?.name || "";
 
   return (
     <>

@@ -7,7 +7,7 @@ import { loadAllFees, loadStudentFees, saveStudentFees } from "../utils/feeStore
 import { loadAllUsers, saveAllUsers } from "../utils/userStore";
 import { loadCollegeConfig, saveCollegeConfig } from "../utils/collegeStore";
 import { FaGraduationCap, FaUserTie, FaMoneyBillWave } from 'react-icons/fa';
-import { FiAlertTriangle, FiUser, FiLogOut, FiMenu, FiSearch, FiRefreshCw } from 'react-icons/fi';
+import { FiAlertTriangle, FiUser, FiLogOut, FiMenu, FiRefreshCw } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 
 // Statics like days/periods remain constant but config is dynamic
@@ -148,7 +148,9 @@ export default function AdminDashboard() {
     try {
       const stored = localStorage.getItem("erp_staff_alloc");
       if (stored) return JSON.parse(stored);
-    } catch(e) {}
+    } catch (e) {
+      // Ignore invalid stored allocation data.
+    }
     return initialAllocations;
   });
 

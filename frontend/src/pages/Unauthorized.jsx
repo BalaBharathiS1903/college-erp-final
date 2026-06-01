@@ -3,13 +3,7 @@ import { useAuth } from "../context/AuthContext";
 
 export default function Unauthorized() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
-
-  const roleHome = {
-    ADMIN:   "/admin",
-    STAFF:   "/staff",
-    STUDENT: "/student",
-  };
+  const { logout } = useAuth();
 
   return (
     <>
@@ -76,7 +70,7 @@ export default function Unauthorized() {
           <div className="code">403</div>
           <div className="title">Access Denied</div>
           <p className="desc">
-            You don't have permission to view this page.
+            You do not have permission to view this page.
             This area is restricted to a different role.
           </p>
           <div className="btn-row">

@@ -66,7 +66,12 @@ export function AuthProvider({ children }) {
       }
 
       let msg = "Invalid credentials";
-      try { const err = await res.json(); msg = err.message || msg; } catch(e) {}
+      try {
+        const err = await res.json();
+        msg = err.message || msg;
+      } catch (e) {
+        // Ignore non-JSON error bodies.
+      }
       throw new Error(msg);
 
     } catch (err) {

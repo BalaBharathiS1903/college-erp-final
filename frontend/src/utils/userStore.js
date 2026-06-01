@@ -39,7 +39,7 @@ export function loadAllUsers() {
       // Ensure admin is always present with current password from env
       const adminExists = parsed.find(u => u.role === "ADMIN");
       if (!adminExists) {
-        console.log('⚠️ No admin found - adding default admin');
+        console.log('No admin found - adding default admin');
         const withAdmin = [ADMIN_USER, ...parsed];
         localStorage.setItem(STORAGE_KEY, JSON.stringify(withAdmin));
         return withAdmin;
@@ -51,7 +51,7 @@ export function loadAllUsers() {
           : u
       );
       if (JSON.stringify(updatedUsers) !== JSON.stringify(parsed)) {
-        console.log('🔄 Admin password updated from environment');
+        console.log('Admin password updated from environment');
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUsers));
       }
       return updatedUsers;
@@ -60,7 +60,7 @@ export function loadAllUsers() {
     console.error("Failed to load users", e);
   }
   // First run: seed with just admin
-  console.log('✨ Initializing with default admin user');
+  console.log('Initializing with default admin user');
   localStorage.setItem(STORAGE_KEY, JSON.stringify([ADMIN_USER]));
   return [ADMIN_USER];
 }
@@ -74,8 +74,9 @@ function safeEqual(a, b) {
   if (typeof a !== "string" || typeof b !== "string") return false;
   if (a.length !== b.length) {
     // Still iterate to avoid length-based timing leak
-    let diff = 0;
-    for (let i = 0; i < Math.max(a.length, b.length); i++) diff |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
+    for (let i = 0; i < Math.max(a.length, b.length); i++) {
+      void ((a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0));
+    }
     return false;
   }
   let diff = 0;
