@@ -84,6 +84,8 @@ public class UserService {
     // ── Reset password ────────────────────────────────────────────
     @Transactional
     public void resetPassword(Long id, String newPassword) {
+        if (newPassword == null || newPassword.isBlank())
+            throw new IllegalArgumentException("New password must not be blank");
         User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         user.setPasswordHash(encoder.encode(newPassword));
         userRepo.save(user);

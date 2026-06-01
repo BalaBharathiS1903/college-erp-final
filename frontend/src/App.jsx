@@ -18,7 +18,7 @@ if (localStorage.getItem("erp_app_version") !== APP_VERSION) {
   // Remove old keys that had mock data
   ["erp_users", "erp_fees", "erp_staff_sessions", "erp_token", "erp_role", "erp_username", "erp_name"].forEach(k => localStorage.removeItem(k));
   localStorage.setItem("erp_app_version", APP_VERSION);
-  console.log("🔄 ERP: Cleared stale data. Fresh start with v3_clean.");
+  console.log("ERP: Cleared stale data. Fresh start with v3_clean.");
 }
 
 
@@ -53,9 +53,9 @@ function LoginWrapper() {
 export default function App() {
   return (
     <AuthProvider>
-      <Analytics />
-      <SpeedInsights />
       <BrowserRouter>
+        <Analytics />
+        <SpeedInsights />
         <Routes>
           {/* Public */}
           <Route path="/login"        element={<LoginWrapper />} />

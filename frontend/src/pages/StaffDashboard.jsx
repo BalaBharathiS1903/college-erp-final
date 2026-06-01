@@ -4,6 +4,8 @@ import appLogo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { loadAllUsers } from "../utils/userStore";
 import { loadCollegeConfig } from "../utils/collegeStore";
+import { FiLogOut, FiMenu, FiSearch, FiAlertTriangle } from 'react-icons/fi';
+import { FaSave } from 'react-icons/fa';
 import { 
   loadAttendance, saveAttendance as storeAttendance, 
   loadCIAMarks, saveCIAMarks as storeCIAMarks, 
@@ -76,12 +78,16 @@ const SUBJ_COLORS = ["#f59e0b","#10b981","#4a90e2","#c084fc"];
 export default function StaffDashboard() {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
-  const allUsers = loadAllUsers();
+  const [allUsers, setAllUsers] = useState(loadAllUsers);
   const STUDENTS = allUsers.filter(u => u.role === "STUDENT");
   const SUBJECTS = getCollegeSubjects();
   const isCoe = allUsers.find(u => u.username === user?.username)?.isCoe === true;
+
   const handleLogout = () => { logout(); navigate("/login"); };
   const [tab, setTab]               = useState("dashboard");
+
+  // Refresh users when tab changes so STUDENTS list stays current
+  useEffect(() => { setAllUsers(loadAllUsers()); }, [tab]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selSubject, setSelSubject]   = useState(SUBJECTS[0]?.id || 1);
   const [selDate, setSelDate]         = useState(TODAY);
@@ -102,19 +108,22 @@ export default function StaffDashboard() {
     } else {
       setAttendance(initAttendance(STUDENTS));
     }
-  }, [selSubject, selDate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selSubject, selDate, STUDENTS.length]);
 
   // Sync CIA from store
   useEffect(() => {
     const saved = loadCIAMarks(ciaSubject);
     if (saved) setCiaMarks(prev => ({ ...prev, ...Object.fromEntries(STUDENTS.map(s => [s.id, { ...prev[s.id], [ciaSubject]: saved[s.id] || { cia1: "", cia2: "", cia3: "" } }])) }));
-  }, [ciaSubject]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ciaSubject, STUDENTS.length]);
 
   // Sync SEM from store
   useEffect(() => {
     const saved = loadSemMarks(semSubject);
     if (saved) setSemMarks(prev => ({ ...prev, ...Object.fromEntries(STUDENTS.map(s => [s.id, { ...prev[s.id], [semSubject]: saved[s.id] || "" }])) }));
-  }, [semSubject]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [semSubject, STUDENTS.length]);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -159,7 +168,7 @@ export default function StaffDashboard() {
     // Persist actual attendance grid
     storeAttendance(selSubject, selDate, attendance);
     
-    showToast("✅ Attendance saved for " + subjName);
+    showToast("Attendance saved for " + subjName);
   };
 
   // ── CIA helpers ────────────────────────────────────────────
@@ -265,7 +274,7 @@ export default function StaffDashboard() {
 
         /* ── Controls ── */
         .ctrl-row{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
-        .sel,date-in{background:#ffffff;border:1px solid #cbd5e1;
+        .sel,.date-in{background:#ffffff;border:1px solid #cbd5e1;
           border-radius:9px;padding:8px 14px;color:#0f172a;font-size:13px;outline:none;
           font-family:'Outfit',sans-serif;cursor:pointer}
         .sel option{background:#ffffff;color:#0f172a}
@@ -465,7 +474,7 @@ export default function StaffDashboard() {
                 <div style={{ display:"flex", gap:8 }}>
                   <button className="btn-ghost" onClick={() => markAll("P")}>All Present</button>
                   <button className="btn-ghost" onClick={() => markAll("A")}>All Absent</button>
-                  <button className="btn-green" onClick={saveAttendance}>💾 Save</button>
+                  <button className="btn-green" onClick={saveAttendance}><FaSave style={{ marginRight: 8 }} /> Save</button>
                 </div>
               </div>
 
@@ -540,8 +549,8 @@ export default function StaffDashboard() {
                 <button className="btn-green" onClick={() => {
                   const dataToSave = Object.fromEntries(STUDENTS.map(s => [s.id, ciaMarks[s.id]?.[ciaSubject]]));
                   storeCIAMarks(ciaSubject, dataToSave);
-                  showToast("✅ CIA Marks Saved!");
-                }}>💾 Save Marks</button>
+                  showToast("CIA Marks Saved!");
+                }}><FaSave style={{ marginRight: 8 }} /> Save Marks</button>
               </div>
 
               {/* Subject Tabs */}
@@ -656,10 +665,10 @@ export default function StaffDashboard() {
                 <button className="btn-green" onClick={() => {
                   const dataToSave = Object.fromEntries(STUDENTS.map(s => [s.id, semMarks[s.id]?.[semSubject]]));
                   storeSemMarks(semSubject, dataToSave);
-                  showToast("✅ Semester marks saved!");
-                }}>💾 Save Marks</button>
+                  showToast("Semester marks saved!");
+                }}><FaSave style={{ marginRight: 8 }} /> Save Marks</button>
               </div>
-              <div className="info-box">⚠️ You are acting as COE. These grades are final and directly update student report cards.</div>
+              <div className="info-box"><FiAlertTriangle style={{ marginRight: 8 }} /> You are acting as COE. These grades are final and directly update student report cards.</div>
               <div className="sub-tabs">
                 {SUBJECTS.map(s => (
                   <button key={s.id} className={`sub-tab ${semSubject === s.id ? "on" : ""}`} onClick={() => setSemSubject(s.id)}>
@@ -714,7 +723,7 @@ export default function StaffDashboard() {
             {tab === "students" && (<>
               <div className="sec-hd">
                 <div><div className="sec-title">My Students</div><div className="sec-sub">CSE · Semester 6 · {STUDENTS.length} enrolled</div></div>
-                <input className="search-in" placeholder="🔍  Search student..." value={studentSearch} onChange={e => setStudentSearch(e.target.value)} />
+                <input className="search-in" placeholder="Search student..." value={studentSearch} onChange={e => setStudentSearch(e.target.value)} />
               </div>
               <div className="tbl-wrap">
                 <table className="tbl">
@@ -728,7 +737,7 @@ export default function StaffDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {attStats.filter(s => s.name.toLowerCase().includes(studentSearch.toLowerCase()) || s.regNo.toLowerCase().includes(studentSearch.toLowerCase())).map(s => {
+                    {attStats.filter(s => s.name.toLowerCase().includes(studentSearch.toLowerCase()) || (s.regNo || "").toLowerCase().includes(studentSearch.toLowerCase())).map(s => {
                       const allVals = SUBJECTS.flatMap(sub =>
                         [1,2,3].map(n => ciaMarks[s.id]?.[sub.id]?.[`cia${n}`]).filter(v=>v!==""&&v!==undefined).map(Number)
                       );

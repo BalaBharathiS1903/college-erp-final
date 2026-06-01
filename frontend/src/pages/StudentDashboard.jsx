@@ -5,6 +5,7 @@ import { loadStudentFees, saveStudentFees } from "../utils/feeStore";
 import { loadAllUsers } from "../utils/userStore";
 import { loadCollegeConfig } from "../utils/collegeStore";
 import { loadCIAMarks, loadSemMarks } from "../utils/staffStore";
+import { FiLogOut, FiMenu, FiSearch } from 'react-icons/fi';
 
 /* ─── helpers ─────────────────────────────────────────────── */
 function grade(v) {
@@ -129,7 +130,7 @@ export default function StudentDashboard() {
     setFees(updated);
     saveStudentFees(user?.username, updated);
     setPayModal(null);
-    showToast("✅ Payment successful!");
+    showToast("Payment successful!");
   };
 
   const handleLogout = () => { logout(); navigate("/login"); };
@@ -144,12 +145,16 @@ export default function StudentDashboard() {
       return `<tr><td>${s.code}</td><td>${s.name}</td><td>${s.cia1??'—'}</td><td>${s.cia2??'—'}</td><td>${s.cia3??'—'}</td><td>${sc}</td><td>${s.semMark??'—'}</td><td>${tot??'—'}</td><td style="color:${gradeColor(g)}">${g}</td><td>${s.semMark!==null?(Number(s.semMark)>=50?'PASS':'FAIL'):'—'}</td></tr>`;
     }).join("");
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Mark Statement</title><style>body{font-family:Arial;padding:30px;font-size:13px}table{width:100%;border-collapse:collapse}th{background:#0f172a;color:#fff;padding:8px;text-align:center}td{padding:8px;border-bottom:1px solid #e2e8f0;text-align:center}td:nth-child(2){text-align:left}.h{text-align:center;margin-bottom:20px}</style></head><body><div class="h"><h2>BHC ERP — Mark Statement</h2><p>Semester ${viewSem} · ${STUDENT.name} · ${STUDENT.username}</p></div><table><thead><tr><th>Code</th><th>Subject</th><th>CIA1</th><th>CIA2</th><th>CIA3</th><th>CIA/25</th><th>Sem/100</th><th>Total</th><th>Grade</th><th>Result</th></tr></thead><tbody>${rows}</tbody></table>${gpa ? `<p style="text-align:right;margin-top:12px;font-weight:700">SGPA: ${gpa}</p>` : ""}</body></html>`;
-    const w = window.open("", "_blank"); w.document.write(html); w.document.close(); w.print();
+    const w = window.open("", "_blank");
+    if (!w) { alert("Please allow popups to download the PDF."); return; }
+    w.document.write(html); w.document.close(); w.print();
   };
 
   const downloadReceiptPDF = (fee, receipt) => {
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receipt</title><style>body{font-family:Arial;padding:40px;font-size:13px;max-width:600px;margin:auto}h2{text-align:center}table{width:100%;border-collapse:collapse;margin:20px 0}td{padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:13px}td:first-child{color:#64748b;width:40%}td:last-child{font-weight:700}.paid{text-align:center;font-size:24px;font-weight:900;color:#16a34a;border:3px solid #16a34a;display:inline-block;padding:6px 20px;border-radius:8px;transform:rotate(-8deg);margin:20px auto}</style></head><body><h2>BHC ERP — Fee Receipt</h2><table><tr><td>Student</td><td>${STUDENT.name}</td></tr><tr><td>Register No.</td><td>${STUDENT.username}</td></tr><tr><td>Fee Type</td><td>${fee.type}</td></tr><tr><td>Academic Year</td><td>${fee.year}</td></tr><tr><td>Receipt No.</td><td>${receipt.no}</td></tr><tr><td>Date</td><td>${receipt.date}</td></tr><tr><td>Mode</td><td>${receipt.mode}</td></tr><tr><td>Amount</td><td style="font-size:18px;color:#15803d">₹${receipt.amount.toLocaleString("en-IN")}</td></tr></table><div style="text-align:center"><div class="paid">PAID</div></div></body></html>`;
-    const w = window.open("", "_blank"); w.document.write(html); w.document.close(); w.print();
+    const w = window.open("", "_blank");
+    if (!w) { alert("Please allow popups to download the receipt."); return; }
+    w.document.write(html); w.document.close(); w.print();
   };
 
   /* ══════════════════════════════════════════════════════════════
@@ -255,7 +260,7 @@ export default function StudentDashboard() {
           </nav>
           <div className="sd-sb-foot">
             <button onClick={handleLogout} style={{ width:"100%", background:"rgba(239,68,68,.1)", border:"1.5px solid rgba(239,68,68,.25)", color:"#ef4444", padding:"8px", borderRadius:9, cursor:"pointer", fontSize:13, fontWeight:700, fontFamily:"'Plus Jakarta Sans',sans-serif" }}>
-              {sidebar ? "🚪 Logout" : "🚪"}
+              {sidebar ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><FiLogOut /> Logout</span> : <FiLogOut />}
             </button>
           </div>
         </aside>
@@ -264,7 +269,7 @@ export default function StudentDashboard() {
         <div className="sd-main">
           <div className="sd-topbar">
             <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-              <button className="sd-menu-btn" onClick={() => setSidebar(s => !s)}>☰</button>
+              <button className="sd-menu-btn" onClick={() => setSidebar(s => !s)}><FiMenu /></button>
               <span style={{ fontWeight:800, fontSize:16 }}>{NAV.find(n => n.id === tab)?.label}</span>
             </div>
             <div style={{ display:"flex", alignItems:"center", gap:12 }}>
@@ -408,7 +413,7 @@ export default function StudentDashboard() {
                   <table className="sd-tbl">
                     <thead><tr><th className="lft">Subject</th><th>Code</th><th>Credits</th><th>Status</th></tr></thead>
                     <tbody>
-                      {allSubjects.filter(s => s.sem === (STUDENT.sem || 6)).map(s => (
+                      {allSubjects.filter(s => Number(s.sem) === Number(STUDENT.sem || 6)).map(s => (
                         <tr key={s.id}>
                           <td className="lft"><div className="sn">{s.name}</div></td>
                           <td><span className="mk" style={{ color:"#14b8a6" }}>{s.code}</span></td>
@@ -448,7 +453,7 @@ export default function StudentDashboard() {
                 <div className="sd-empty"><div className="sd-empty-icon">No fees</div><div style={{ fontWeight:700 }}>No fee records for {feeYear}</div><div style={{ fontSize:12, marginTop:4 }}>Contact Admin to allocate fees.</div></div>
               ) : filteredFees.map(f => {
                 const bal = f.allocated - f.paid;
-                const pct = Math.round((f.paid / f.allocated) * 100);
+                const pct = f.allocated > 0 ? Math.round((f.paid / f.allocated) * 100) : 0;
                 const pc = pct === 100 ? "#22c55e" : pct > 50 ? "#f59e0b" : "#ef4444";
                 return (
                   <div className="sd-fee-card" key={f.id}>

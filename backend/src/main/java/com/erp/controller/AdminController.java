@@ -10,7 +10,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin")
 @PreAuthorize("hasRole('ADMIN')")
-@CrossOrigin(origins = "*")
 public class AdminController {
 
     @Autowired private UserService userService;
@@ -43,8 +42,12 @@ public class AdminController {
 
     @PatchMapping("/users/{id}/reset-password")
     public ResponseEntity<?> resetPassword(@PathVariable Long id, @RequestBody Map<String,String> body) {
-        userService.resetPassword(id, body.get("password"));
-        return ResponseEntity.ok(Map.of("message","Password reset successfully"));
+        try {
+            userService.resetPassword(id, body.get("password"));
+            return ResponseEntity.ok(Map.of("message","Password reset successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @DeleteMapping("/users/{id}")

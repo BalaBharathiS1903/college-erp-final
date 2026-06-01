@@ -30,6 +30,7 @@ export function loadStudentFees(regNo) {
 export function saveStudentFees(regNo, fees) {
   if (!regNo) return;
   const all = loadAllFees();
-  all[regNo] = fees;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  const safeAll = (all && typeof all === "object" && !Array.isArray(all)) ? all : {};
+  safeAll[regNo] = fees;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(safeAll));
 }

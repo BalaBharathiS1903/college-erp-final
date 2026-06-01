@@ -6,6 +6,9 @@ import { loadAllFees, loadStudentFees, saveStudentFees } from "../utils/feeStore
 
 import { loadAllUsers, saveAllUsers } from "../utils/userStore";
 import { loadCollegeConfig, saveCollegeConfig } from "../utils/collegeStore";
+import { FaGraduationCap, FaUserTie, FaMoneyBillWave } from 'react-icons/fa';
+import { FiAlertTriangle, FiUser, FiLogOut, FiMenu, FiSearch, FiRefreshCw } from 'react-icons/fi';
+import { motion } from 'framer-motion';
 
 // Statics like days/periods remain constant but config is dynamic
 const DAYS = ["MON", "TUE", "WED", "THU", "FRI"];
@@ -288,6 +291,8 @@ export default function AdminDashboard() {
   };
 
   const deleteUser = (id) => {
+    const target = users.find(u => u.id === id);
+    if (!window.confirm(`Delete user "${target?.name || id}"? This cannot be undone.`)) return;
     const updatedUsers = users.filter(u => u.id !== id);
     setUsers(updatedUsers);
     saveAllUsers(updatedUsers);
@@ -604,7 +609,7 @@ export default function AdminDashboard() {
 
           <div className="sidebar-footer">
             <div className="admin-tag">
-              <div className="admin-avatar">👤</div>
+              <div className="admin-avatar"><FiUser /></div>
               {sidebarOpen && (
                 <div className="admin-info">
                   <div className="admin-name">{user?.name || "Admin"}</div>
@@ -628,7 +633,7 @@ export default function AdminDashboard() {
                 onMouseOver={e => e.target.style.background = "rgba(232,69,69,0.2)"}
                 onMouseOut={e => e.target.style.background = "rgba(232,69,69,0.1)"}
               >
-                🚪 Logout
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><FiLogOut /> Logout</span>
               </button>
             )}
           </div>
@@ -639,7 +644,7 @@ export default function AdminDashboard() {
           {/* Topbar */}
           <div className="topbar">
             <div className="topbar-left">
-              <button className="menu-btn" onClick={() => setSidebarOpen(o => !o)}>☰</button>
+              <button className="menu-btn" onClick={() => setSidebarOpen(o => !o)}><FiMenu /></button>
               <span className="page-title">
                 {navItems.find(n => n.id === activeTab)?.label || "Dashboard"}
               </span>
@@ -666,17 +671,17 @@ export default function AdminDashboard() {
               const pendingPct = feesTotal > 0 ? Math.round((feesPending / feesTotal) * 100) : 0;
 
               const dynamicStats = [
-                { label: "Total Students", value: studentCount.toString(), icon: "🎓", change: "Updated live", color: "#4a90e2" },
-                { label: "Total Staff",    value: staffCount.toString(),    icon: "👨‍🏫", change: "Updated live",  color: "#f5a623" },
-                { label: "Fees Collected", value: `₹${(feesCollected/100000).toFixed(1)}L`,  icon: "💰", change: `${collectedPct}% collected`,   color: "#7ed321" },
-                { label: "Fees Pending",   value: `₹${(feesPending/100000).toFixed(1)}L`,  icon: "⚠️", change: `${pendingPct}% pending`,    color: "#e84545" },
+                { label: "Total Students", value: studentCount.toString(), icon: <FaGraduationCap />, change: "Updated live", color: "#4a90e2" },
+                { label: "Total Staff",    value: staffCount.toString(),    icon: <FaUserTie />, change: "Updated live",  color: "#f5a623" },
+                { label: "Fees Collected", value: `₹${(feesCollected/100000).toFixed(1)}L`,  icon: <FaMoneyBillWave />, change: `${collectedPct}% collected`,   color: "#7ed321" },
+                { label: "Fees Pending",   value: `₹${(feesPending/100000).toFixed(1)}L`,  icon: <FiAlertTriangle />, change: `${pendingPct}% pending`,    color: "#e84545" },
               ];
 
               return (
               <>
                 <div className="stats-grid">
                   {dynamicStats.map(s => (
-                    <div className="stat-card" key={s.label}>
+                    <motion.div className="stat-card" key={s.label} whileHover={{ y: -6 }} transition={{ type: 'spring', stiffness: 220 }}>
                       <div className="stat-top">
                         <div>
                           <div className="stat-label">{s.label}</div>
@@ -685,7 +690,7 @@ export default function AdminDashboard() {
                         <div style={{ fontSize: 28 }}>{s.icon}</div>
                       </div>
                       <div className="stat-change">{s.change}</div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
 
@@ -722,12 +727,12 @@ export default function AdminDashboard() {
                     <table>
                       <tbody>
                         {fees.slice(0, 4).map(f => {
-                          const pct = Math.round((f.paid / f.allocated) * 100);
+                          const pct = f.allocated > 0 ? Math.round((f.paid / f.allocated) * 100) : 0;
                           return (
                             <tr key={f.id}>
                               <td>
                                 <div className="td-name">{f.student}</div>
-                                <div className="td-meta">{f.feeType} · {f.regNo}</div>
+                                <div className="td-meta">{f.details?.[0]?.type || "Multiple"} · {f.regNo}</div>
                                 <div className="fee-bar-bg">
                                   <div className="fee-bar-fill" style={{
                                     width: `${pct}%`,
@@ -764,7 +769,7 @@ export default function AdminDashboard() {
                 <div className="filter-bar">
                   <input
                     className="search-input"
-                    placeholder="🔍  Search by name or username..."
+                    placeholder="Search by name or username..."
                     value={search} onChange={e => setSearch(e.target.value)}
                   />
                   <select className="filter-select" value={roleFilter} onChange={e => setRoleFilter(e.target.value)}>
@@ -833,7 +838,7 @@ export default function AdminDashboard() {
                     <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", marginTop: 3 }}>AY 2024-25 · Live data from all portals</div>
                   </div>
                   <div style={{ display: "flex", gap: 8 }}>
-                    <button className="btn-ghost" onClick={refreshFees}>🔄 Refresh</button>
+                    <button className="btn-ghost" onClick={refreshFees}><FiRefreshCw /> Refresh</button>
                     <button className="btn-primary" onClick={() => setShowAddFee(true)}>＋ Allocate Fee</button>
                   </div>
                 </div>
@@ -893,7 +898,7 @@ export default function AdminDashboard() {
                             {/* Child Rows (Dropdown) */}
                             {isExp && st.details.map(f => {
                               const bal = f.allocated - f.paid;
-                              const fpct = Math.round((f.paid / f.allocated) * 100);
+                              const fpct = f.allocated > 0 ? Math.round((f.paid / f.allocated) * 100) : 0;
                               return (
                                 <tr key={f.id} style={{ background: "rgba(255,255,255,0.01)" }}>
                                   <td style={{ paddingLeft: 46 }}>
@@ -998,7 +1003,7 @@ export default function AdminDashboard() {
                         <div className="alloc-subject" style={{ color }}>{subj}</div>
                         <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginBottom: 8 }}>3 Credits · Theory</div>
                         <div className="alloc-staff-tag" style={{ border: assignedName === "Unassigned" ? "1px dashed rgba(232,69,69,0.4)" : undefined, color: assignedName === "Unassigned" ? "#e84545" : undefined }}>
-                          <span>👨‍🏫</span>
+                          <span><FaUserTie /></span>
                           <span>{assignedName}</span>
                         </div>
                         <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
@@ -1043,7 +1048,7 @@ export default function AdminDashboard() {
                 Assign COE (Controller of Examinations) access
               </label>
             )}
-            <FormInput label="Password *" type="password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} placeholder="Create a login password" />
+            <FormInput label="Password *" type="password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} placeholder="Create a login password" id="add-user-password" />
             <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginBottom: 16 }}>* Required fields. The user will log in with this username and password.</div>
             <div className="modal-actions">
               <button className="btn-cancel" onClick={() => { setShowAddUser(false); setNewUser(EMPTY_USER); }}>Cancel</button>
@@ -1082,7 +1087,7 @@ export default function AdminDashboard() {
                 COE (Controller of Examinations) Access
               </label>
             )}
-            <FormInput label="New Password (leave blank to keep current)" type="password" value={editingUser.password || ""} onChange={e => setEditingUser({ ...editingUser, password: e.target.value })} placeholder="Enter new password" />
+            <FormInput label="New Password (leave blank to keep current)" type="password" value={editingUser.password || ""} onChange={e => setEditingUser({ ...editingUser, password: e.target.value })} placeholder="Enter new password" id="edit-user-password" />
             <div className="modal-actions">
               <button className="btn-cancel" onClick={() => setShowEditUser(false)}>Cancel</button>
               <button className="btn-submit" onClick={handleUpdateUser}>Update User</button>

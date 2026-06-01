@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/student")
 @PreAuthorize("hasRole('STUDENT')")
-@CrossOrigin(origins = "*")
 public class StudentController {
 
     @Autowired private StudentService    studentService;
@@ -140,7 +139,7 @@ public class StudentController {
         try {
             var receipt = feeService.processPayment(auth.getName(), req.feeAllocationId(), req.amount(), req.paymentMode(), req.transactionId());
             return ResponseEntity.ok(receipt);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         }
     }

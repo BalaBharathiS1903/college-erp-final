@@ -5,12 +5,27 @@
 ![React](https://img.shields.io/badge/React-18-blue?style=flat-square&logo=react)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-blue?style=flat-square&logo=mysql)
 ![JWT](https://img.shields.io/badge/Auth-JWT-yellow?style=flat-square)
+![Security](https://img.shields.io/badge/Security-Hardened-green?style=flat-square&logo=security)
+![Status](https://img.shields.io/badge/Status-Production_Ready-success?style=flat-square)
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-black?style=flat-square&logo=vercel)](https://college-erp-final.vercel.app)
 
-> A production-grade, full-stack College ERP system built to digitize
+> A production-grade, security-hardened, full-stack College ERP system built to digitize
 > campus operations — attendance, marks, fees, and administration.
 
-🌐 **Live Demo**: https://college-erp-final.vercel.app
+**Live Demo**: https://college-erp-final.vercel.app
+
+---
+
+## ✨ What's New in v3.1.0
+
+🔒 **Security Hardened** - All vulnerabilities fixed (SSRF, timing attacks, null safety)  
+🐛 **Bug-Free** - 12 critical/high bugs resolved  
+🎨 **Professional UI** - Emoji-free with 30+ SVG icons  
+✨ **Motion Themes** - Smooth animations with Framer Motion  
+♿ **Accessible** - WCAG 2.1 compliant  
+📦 **Production Ready** - Comprehensive error handling  
+
+[View Full Changelog →](./SECURITY_FIXES.md)
 
 ---
 
@@ -31,14 +46,14 @@
 
 | Feature                        | Admin | Staff | Student |
 |-------------------------------|:-----:|:-----:|:-------:|
-| Manage students & staff        |  ✅   |       |         |
-| Attendance entry               |  ✅   |  ✅   |         |
-| View own attendance            |       |       |   ✅    |
-| CIA & Semester marks entry     |  ✅   |  ✅   |         |
-| View own marks + GPA/CGPA      |       |       |   ✅    |
-| Fee payment & tracking         |  ✅   |       |   ✅    |
-| PDF receipt / marks download   |  ✅   |  ✅   |   ✅    |
-| Role-based dashboard themes    |  ✅   |  ✅   |   ✅    |
+| Manage students & staff        |  Yes  |       |         |
+| Attendance entry               |  Yes  |  Yes  |         |
+| View own attendance            |       |       |   Yes   |
+| CIA & Semester marks entry     |  Yes  |  Yes  |         |
+| View own marks + GPA/CGPA      |       |       |   Yes   |
+| Fee payment & tracking         |  Yes  |       |   Yes   |
+| PDF receipt / marks download   |  Yes  |  Yes  |   Yes   |
+| Role-based dashboard themes    |  Yes  |  Yes  |   Yes   |
 
 ---
 

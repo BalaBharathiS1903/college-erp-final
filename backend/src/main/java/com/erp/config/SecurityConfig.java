@@ -45,10 +45,18 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsSource() {
         var config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
+        String extra = System.getenv("CORS_ALLOWED_ORIGINS");
+        List<String> origins = new java.util.ArrayList<>(List.of(
             "http://localhost:5173",
             "http://localhost:3000"
         ));
+        if (extra != null && !extra.isBlank()) {
+            for (String o : extra.split(",")) {
+                String trimmed = o.trim();
+                if (!trimmed.isEmpty()) origins.add(trimmed);
+            }
+        }
+        config.setAllowedOrigins(origins);
         config.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

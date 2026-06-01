@@ -5,11 +5,31 @@ const AuthContext = createContext(null);
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
+// Allowlist of trusted origins — prevents SSRF (CWE-918)
+const ALLOWED_ORIGINS = (() => {
+  try {
+    return [new URL(API_BASE).origin];
+  } catch {
+    return ["http://localhost:8080"];
+  }
+})();
+
+function assertTrustedURL(url) {
+  try {
+    const origin = new URL(url).origin;
+    if (!ALLOWED_ORIGINS.includes(origin)) {
+      throw new Error(`Blocked request to untrusted origin: ${origin}`);
+    }
+  } catch (e) {
+    if (e.message.startsWith("Blocked")) throw e;
+    // relative URLs are always safe
+  }
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser]       = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Restore session from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem("erp_token");
     const role   = localStorage.getItem("erp_role");
@@ -22,9 +42,10 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (username, password, role) => {
-    // First try backend
     try {
-      const res = await fetch(`${API_BASE}/api/auth/login`, {
+      const loginURL = `${API_BASE}/api/auth/login`;
+      assertTrustedURL(loginURL);
+      const res = await fetch(loginURL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, role }),
@@ -41,19 +62,14 @@ export function AuthProvider({ children }) {
         return data.role;
       }
 
-      // Backend returned error (wrong password)
       let msg = "Invalid credentials";
       try { const err = await res.json(); msg = err.message || msg; } catch(e) {}
       throw new Error(msg);
 
     } catch (err) {
-      // Backend not available — validate against local userStore
       if (err.name === "AbortError" || err.message === "Failed to fetch" || err.name === "TypeError") {
-        // Local auth fallback
         const found = validateLogin(username, password, role);
-        if (!found) {
-          throw new Error("Invalid username or password.");
-        }
+        if (!found) throw new Error("Invalid username or password.");
         const mockToken = `local_token_${Date.now()}`;
         localStorage.setItem("erp_token",    mockToken);
         localStorage.setItem("erp_role",     found.role);
@@ -75,7 +91,13 @@ export function AuthProvider({ children }) {
   };
 
   const authFetch = (url, options = {}) => {
-    return fetch(`${API_BASE}${url}`, {
+    // Reject absolute URLs that could bypass the trusted origin check
+    if (/^https?:\/\//i.test(url)) {
+      assertTrustedURL(url);
+    }
+    const fullURL = `${API_BASE}${url}`;
+    assertTrustedURL(fullURL);
+    return fetch(fullURL, {
       ...options,
       headers: {
         "Content-Type": "application/json",

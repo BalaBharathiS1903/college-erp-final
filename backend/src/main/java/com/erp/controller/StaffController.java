@@ -13,7 +13,6 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/api/staff")
 @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
-@CrossOrigin(origins = "*")
 public class StaffController {
 
     @Autowired private AttendanceService attendanceService;
